@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-from src.ollama_pal import ask_question_on_csv
+from ollama_pal import ask_question_on_csv
 
 
 def main() -> None:
@@ -19,9 +19,9 @@ def main() -> None:
 
     result = ask_question_on_csv(csv_path=args.csv, question=args.question, model=args.model)
 
-    if args.show_code:
-        print("\n=== Generated pandas code ===")
-        print(result.code)
+    # if args.show_code:
+    print("\n=== Generated pandas code ===")
+    print(result.code)
 
     print("\n=== Answer ===")
     print(result.answer)
