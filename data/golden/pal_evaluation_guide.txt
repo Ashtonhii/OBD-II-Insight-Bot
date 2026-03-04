@@ -1,0 +1,60 @@
+PAL Evaluation Guide (Execution Success Rate + Exact Match)
+
+Artifacts in this folder
+- pal_golden_dataset.csv  -> question set with deterministic expected answers
+- pal_golden_answers.txt  -> human-readable answer key
+- pal_eval_results_template.csv -> fill this during model evaluation
+- pal_eval_results.csv -> produced by automated evaluator (after running it)
+
+Definitions
+1) Execution Success Rate (ESR)
+   ESR = (# questions where generated Python code executes successfully) / (total # questions)
+
+2) Exact Match (EM)
+   EM = (# successful executions where normalized model answer == normalized golden answer) / (# successful executions)
+
+Normalization recommendation (for EM)
+- Trim spaces
+- Lowercase text
+- For numeric answers, cast to float and compare with tolerance (for example abs(a-b) <= 1e-4)
+- For percentages, keep the same unit in both sides (both as 0-100 values)
+
+How to run one question manually (example)
+python ask_obd.py --csv data/obdiidata/drive1.csv --question "What is the maximum vehicle speed in drive1.csv?" --show-code
+
+How to run automated evaluation (recommended)
+python src/evaluate_pal.py --model granite-code:8b
+
+Optional quick smoke test (first 5 questions)
+python src/evaluate_pal.py --model granite-code:8b --limit 5
+
+Optional custom tolerance for numeric comparison
+python src/evaluate_pal.py --model granite-code:8b --tolerance 1e-3
+
+Suggested manual evaluation loop
+1) Open pal_golden_dataset.csv
+2) For each row:
+   a) Run ask_obd.py with dataset_file + question
+   b) Mark execution_success = 1 if code ran and returned a result, else 0
+   c) Record model_raw_answer
+   d) Write normalized_model_answer (numeric/text normalized)
+   e) Mark exact_match = 1/0 against expected_answer (only if execution_success=1)
+3) Compute ESR and EM from pal_eval_results_template.csv
+
+Automated evaluation output
+- The script writes per-question results to data/golden/pal_eval_results.csv
+- Columns include model_raw_answer, normalized_model_answer, execution_success, exact_match, and notes
+- ESR and EM are printed to stdout at the end
+
+Quick formula examples
+- ESR = SUM(execution_success) / COUNT(id)
+- EM  = SUM(exact_match) / SUM(execution_success)
+
+Interpretation
+- High ESR + low EM: model writes runnable code but computes wrong values
+- Low ESR + high EM: code generation is brittle even if answers are sometimes correct
+- High ESR + high EM: PAL pipeline is both stable and accurate
+
+Notes
+- Golden answers are generated using the same sanitized data loader in this repo.
+- If you change preprocessing logic in data_loader.py, regenerate the golden dataset.

@@ -1,0 +1,104 @@
+Q1: [drive1.csv] How many rows are in drive1.csv?
+A1: 2497
+
+Q2: [drive1.csv] What is the maximum engine rpm in drive1.csv?
+A2: 2269.5000
+
+Q3: [drive1.csv] What is the average engine rpm in drive1.csv?
+A3: 1152.6841
+
+Q4: [drive1.csv] What is the maximum vehicle speed in drive1.csv?
+A4: 48
+
+Q5: [drive1.csv] What is the average vehicle speed in drive1.csv?
+A5: 17.9652
+
+Q6: [drive1.csv] What percentage of rows have vehicle_speed > 0 in drive1.csv?
+A6: 83.9808
+
+Q7: [drive1.csv] What is the highest coolant temperature in drive1.csv?
+A7: 91
+
+Q8: [idle1.csv] How many rows are in idle1.csv?
+A8: 1013
+
+Q9: [idle1.csv] What is the maximum engine rpm in idle1.csv?
+A9: 1802.2500
+
+Q10: [idle1.csv] What is the average engine rpm in idle1.csv?
+A10: 804.3184
+
+Q11: [idle1.csv] What is the maximum vehicle speed in idle1.csv?
+A11: 0
+
+Q12: [idle1.csv] What is the average vehicle speed in idle1.csv?
+A12: 0
+
+Q13: [idle1.csv] What percentage of rows have vehicle_speed > 0 in idle1.csv?
+A13: 0
+
+Q14: [idle1.csv] What is the highest coolant temperature in idle1.csv?
+A14: 87
+
+Q15: [live1.csv] How many rows are in live1.csv?
+A15: 3486
+
+Q16: [live1.csv] What is the maximum engine rpm in live1.csv?
+A16: 2334.2500
+
+Q17: [live1.csv] What is the average engine rpm in live1.csv?
+A17: 1156.3519
+
+Q18: [live1.csv] What is the maximum vehicle speed in live1.csv?
+A18: 60
+
+Q19: [live1.csv] What is the average vehicle speed in live1.csv?
+A19: 20.3201
+
+Q20: [live1.csv] What percentage of rows have vehicle_speed > 0 in live1.csv?
+A20: 64.9168
+
+Q21: [live1.csv] What is the highest coolant temperature in live1.csv?
+A21: 95
+
+Q22: [long1.csv] How many rows are in long1.csv?
+A22: 3288
+
+Q23: [long1.csv] What is the maximum engine rpm in long1.csv?
+A23: 2340.5000
+
+Q24: [long1.csv] What is the average engine rpm in long1.csv?
+A24: 1405.1988
+
+Q25: [long1.csv] What is the maximum vehicle speed in long1.csv?
+A25: 81
+
+Q26: [long1.csv] What is the average vehicle speed in long1.csv?
+A26: 36.6922
+
+Q27: [long1.csv] What percentage of rows have vehicle_speed > 0 in long1.csv?
+A27: 93.7956
+
+Q28: [long1.csv] What is the highest coolant temperature in long1.csv?
+A28: 90
+
+Q29: [ufpe1.csv] How many rows are in ufpe1.csv?
+A29: 1541
+
+Q30: [ufpe1.csv] What is the maximum engine rpm in ufpe1.csv?
+A30: 2330.2500
+
+Q31: [ufpe1.csv] What is the average engine rpm in ufpe1.csv?
+A31: 1361.1325
+
+Q32: [ufpe1.csv] What is the maximum vehicle speed in ufpe1.csv?
+A32: 54
+
+Q33: [ufpe1.csv] What is the average vehicle speed in ufpe1.csv?
+A33: 28.0227
+
+Q34: [ufpe1.csv] What percentage of rows have vehicle_speed > 0 in ufpe1.csv?
+A34: 97.9234
+
+Q35: [ufpe1.csv] What is the highest coolant temperature in ufpe1.csv?
+A35: 90

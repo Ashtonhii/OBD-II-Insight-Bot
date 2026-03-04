@@ -1,0 +1,36 @@
+id,dataset_file,question,pandas_expression,expected_answer
+1,drive1.csv,How many rows are in drive1.csv?,len(df),2497
+2,drive1.csv,What is the maximum engine rpm in drive1.csv?,df['engine_rpm'].max(),2269.5000
+3,drive1.csv,What is the average engine rpm in drive1.csv?,df['engine_rpm'].mean(),1152.6841
+4,drive1.csv,What is the maximum vehicle speed in drive1.csv?,df['vehicle_speed'].max(),48
+5,drive1.csv,What is the average vehicle speed in drive1.csv?,df['vehicle_speed'].mean(),17.9652
+6,drive1.csv,What percentage of rows have vehicle_speed > 0 in drive1.csv?,(df['vehicle_speed'] > 0).mean() * 100,83.9808
+7,drive1.csv,What is the highest coolant temperature in drive1.csv?,df['coolant_temperature'].max(),91
+8,idle1.csv,How many rows are in idle1.csv?,len(df),1013
+9,idle1.csv,What is the maximum engine rpm in idle1.csv?,df['engine_rpm'].max(),1802.2500
+10,idle1.csv,What is the average engine rpm in idle1.csv?,df['engine_rpm'].mean(),804.3184
+11,idle1.csv,What is the maximum vehicle speed in idle1.csv?,df['vehicle_speed'].max(),0
+12,idle1.csv,What is the average vehicle speed in idle1.csv?,df['vehicle_speed'].mean(),0
+13,idle1.csv,What percentage of rows have vehicle_speed > 0 in idle1.csv?,(df['vehicle_speed'] > 0).mean() * 100,0
+14,idle1.csv,What is the highest coolant temperature in idle1.csv?,df['coolant_temperature'].max(),87
+15,live1.csv,How many rows are in live1.csv?,len(df),3486
+16,live1.csv,What is the maximum engine rpm in live1.csv?,df['engine_rpm'].max(),2334.2500
+17,live1.csv,What is the average engine rpm in live1.csv?,df['engine_rpm'].mean(),1156.3519
+18,live1.csv,What is the maximum vehicle speed in live1.csv?,df['vehicle_speed'].max(),60
+19,live1.csv,What is the average vehicle speed in live1.csv?,df['vehicle_speed'].mean(),20.3201
+20,live1.csv,What percentage of rows have vehicle_speed > 0 in live1.csv?,(df['vehicle_speed'] > 0).mean() * 100,64.9168
+21,live1.csv,What is the highest coolant temperature in live1.csv?,df['coolant_temperature'].max(),95
+22,long1.csv,How many rows are in long1.csv?,len(df),3288
+23,long1.csv,What is the maximum engine rpm in long1.csv?,df['engine_rpm'].max(),2340.5000
+24,long1.csv,What is the average engine rpm in long1.csv?,df['engine_rpm'].mean(),1405.1988
+25,long1.csv,What is the maximum vehicle speed in long1.csv?,df['vehicle_speed'].max(),81
+26,long1.csv,What is the average vehicle speed in long1.csv?,df['vehicle_speed'].mean(),36.6922
+27,long1.csv,What percentage of rows have vehicle_speed > 0 in long1.csv?,(df['vehicle_speed'] > 0).mean() * 100,93.7956
+28,long1.csv,What is the highest coolant temperature in long1.csv?,df['coolant_temperature'].max(),90
+29,ufpe1.csv,How many rows are in ufpe1.csv?,len(df),1541
+30,ufpe1.csv,What is the maximum engine rpm in ufpe1.csv?,df['engine_rpm'].max(),2330.2500
+31,ufpe1.csv,What is the average engine rpm in ufpe1.csv?,df['engine_rpm'].mean(),1361.1325
+32,ufpe1.csv,What is the maximum vehicle speed in ufpe1.csv?,df['vehicle_speed'].max(),54
+33,ufpe1.csv,What is the average vehicle speed in ufpe1.csv?,df['vehicle_speed'].mean(),28.0227
+34,ufpe1.csv,What percentage of rows have vehicle_speed > 0 in ufpe1.csv?,(df['vehicle_speed'] > 0).mean() * 100,97.9234
+35,ufpe1.csv,What is the highest coolant temperature in ufpe1.csv?,df['coolant_temperature'].max(),90
