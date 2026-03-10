@@ -10,6 +10,7 @@ This repository provides a robust pipeline for analyzing OBD-II vehicle data usi
 - **Agent Registry (`src/agent_registry.py`)**: Provides a shared interface to run PAL or RAG directly.
 
 Routing is now automatic via the orchestrator CLI (`src/ask_agent.py`).
+The orchestrator now also supports session-based conversational memory.
 
 ## Python Files Overview
 
@@ -88,6 +89,8 @@ Imported by future orchestration/router code. Not typically run directly.
 - **Purpose:** LLM router agent that decides whether a user prompt should go to PAL or RAG.
 - **Features:**
   - Uses Ollama `granite3.3` for routing decisions
+  - Includes recent session memory in routing prompts
+  - Persists each turn to disk for multi-turn context
   - Returns route + rationale
   - Dispatches to PAL for data/CSV computation questions
   - Dispatches to RAG for diagnostics knowledge questions
@@ -100,14 +103,25 @@ Imported by `ask_agent.py`.
 - **Features:**
   - Accepts one user question
   - Uses orchestrator to choose `pal` vs `rag`
+  - Maintains conversational memory by `--session-id`
   - Prints route rationale and agent details optionally
 
 **Usage:**
 ```sh
 python src/ask_agent.py --help
-python src/ask_agent.py --question "What does P0300 usually indicate?" --show-route
-python src/ask_agent.py --question "What is average RPM in this log?" --csv data/obdiidata/drive1.csv --show-route --show-details
+python src/ask_agent.py --question "What does P0300 usually indicate?" --session-id tech1 --show-route
+python src/ask_agent.py --question "What is average RPM in this log?" --csv data/obdiidata/drive1.csv --session-id tech1 --show-route --show-details
 ```
+
+### src/conversation_memory.py
+- **Purpose:** Persists orchestrator session history for conversational routing context.
+- **Features:**
+  - Stores turns in JSON files under `data/memory/orchestrator/`
+  - Sanitizes session IDs for safe file paths
+  - Formats recent turns for router prompt context
+
+**Usage:**
+Imported by `ollama_orchestrator.py`.
 
 ### src/generate_golden_dataset.py
 - **Purpose:** Builds a golden dataset for benchmarking PAL accuracy.

@@ -7,6 +7,7 @@ from typing import Literal
 from urllib import error, request
 
 from agent_registry import AgentResponse, run_pal_agent, run_rag_agent
+from conversation_memory import ConversationMemory
 
 
 Route = Literal["pal", "rag"]
@@ -29,9 +30,13 @@ class OllamaOrchestrator:
         self,
         model: str = "granite3.3",
         base_url: str = "http://localhost:11434",
+        memory: ConversationMemory | None = None,
+        memory_turns_for_routing: int = 5,
     ) -> None:
         self.model = model
         self.base_url = base_url.rstrip("/")
+        self.memory = memory or ConversationMemory()
+        self.memory_turns_for_routing = max(1, memory_turns_for_routing)
 
     def _chat(self, messages: list[dict[str, str]], temperature: float = 0.0) -> str:
         payload = {
@@ -89,8 +94,19 @@ class OllamaOrchestrator:
 
         return {"route": route, "rationale": rationale}
 
-    def decide_route(self, question: str, csv_path: str | Path | None = None) -> RouteDecision:
+    def decide_route(
+        self,
+        question: str,
+        csv_path: str | Path | None = None,
+        session_id: str | None = None,
+    ) -> RouteDecision:
         csv_available = bool(csv_path)
+        memory_context = "No prior conversation memory."
+        if session_id:
+            memory_context = self.memory.format_recent_context(
+                session_id=session_id,
+                max_turns=self.memory_turns_for_routing,
+            )
 
         system_prompt = (
             "You are a strict routing agent for a multi-agent vehicle assistant. "
@@ -103,6 +119,7 @@ class OllamaOrchestrator:
         user_prompt = (
             f"Question: {question}\n"
             f"CSV available: {csv_available}\n\n"
+            f"Recent conversation memory:\n{memory_context}\n\n"
             "Rules:\n"
             "1) If the question asks to compute, filter, aggregate, trend, or compare values from a dataset/log, choose 'pal'.\n"
             "2) If the question asks for general diagnostic guidance/knowledge independent of provided telemetry, choose 'rag'.\n"
@@ -128,17 +145,30 @@ class OllamaOrchestrator:
 
         return RouteDecision(route=route, rationale=parsed["rationale"])
 
+    @staticmethod
+    def _extract_answer_text(response: AgentResponse) -> str:
+        payload = response.payload
+
+        if response.agent == "pal":
+            return str(payload.answer)
+
+        if response.agent == "rag":
+            return str(payload.answer)
+
+        return ""
+
     def route_and_run(
         self,
         *,
         question: str,
         csv_path: str | Path | None = None,
+        session_id: str | None = None,
         pal_model: str = "granite-code:8b",
         rag_model: str = "granite3.3",
         docs_dir: str | Path = "knowledge/diagnostics",
         top_k: int = 4,
     ) -> OrchestratorResult:
-        decision = self.decide_route(question=question, csv_path=csv_path)
+        decision = self.decide_route(question=question, csv_path=csv_path, session_id=session_id)
 
         if decision.route == "pal":
             if not csv_path:
@@ -147,6 +177,16 @@ class OllamaOrchestrator:
         else:
             response = run_rag_agent(question=question, docs_dir=docs_dir, model=rag_model, top_k=top_k)
 
+        if session_id:
+            self.memory.append_turn(
+                session_id=session_id,
+                question=question,
+                selected_route=decision.route,
+                answer=self._extract_answer_text(response),
+                csv_path=str(csv_path) if csv_path else None,
+                rationale=decision.rationale,
+            )
+
         return OrchestratorResult(decision=decision, response=response)
 
 
@@ -154,6 +194,7 @@ def orchestrate_question(
     *,
     question: str,
     csv_path: str | Path | None = None,
+    session_id: str | None = "default",
     router_model: str = "granite3.3",
     pal_model: str = "granite-code:8b",
     rag_model: str = "granite3.3",
@@ -164,6 +205,7 @@ def orchestrate_question(
     return orchestrator.route_and_run(
         question=question,
         csv_path=csv_path,
+        session_id=session_id,
         pal_model=pal_model,
         rag_model=rag_model,
         docs_dir=docs_dir,

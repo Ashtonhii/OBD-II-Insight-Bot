@@ -33,3 +33,4 @@ dist/
 data/processed/
 data/golden/pal_eval_results.csv
 data/obdiidata/
+data/memory/
