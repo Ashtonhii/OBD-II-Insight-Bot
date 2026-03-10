@@ -1,0 +1,13 @@
+id,question,expected_route,csv_path
+1,What is the average engine RPM in this log?,pal,data/obdiidata/drive1.csv
+2,How many rows are in drive1.csv?,pal,data/obdiidata/drive1.csv
+3,What is the maximum vehicle speed from this dataset?,pal,data/obdiidata/drive1.csv
+4,Does this log show higher RPM when speed is above 30?,pal,data/obdiidata/drive1.csv
+5,What does diagnostic code P0300 usually indicate?,rag,
+6,What are common root causes of P0420?,rag,
+7,How should I triage an overheating engine complaint?,rag,
+8,What checks should I do first for a rough idle?,rag,
+9,"Based on this csv, what percent of rows have vehicle_speed > 0?",pal,data/obdiidata/live1.csv
+10,Can a vacuum leak cause lean fuel trims?,rag,
+11,"In this file, what is the highest coolant temperature?",pal,data/obdiidata/idle1.csv
+12,Explain a general workflow to validate a repair after fixing a misfire.,rag,
