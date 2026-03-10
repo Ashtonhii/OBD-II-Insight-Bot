@@ -11,6 +11,11 @@ def main() -> None:
     )
     parser.add_argument("--question", required=True, help="User question")
     parser.add_argument(
+        "--session-id",
+        default="default",
+        help="Conversation session id used for orchestrator memory",
+    )
+    parser.add_argument(
         "--csv",
         default=None,
         help="Optional CSV path for data questions (required if PAL route is needed)",
@@ -40,6 +45,7 @@ def main() -> None:
     result = orchestrate_question(
         question=args.question,
         csv_path=args.csv,
+        session_id=args.session_id,
         router_model=args.router_model,
         pal_model=args.pal_model,
         rag_model=args.rag_model,
