@@ -6,9 +6,10 @@ This repository provides a robust pipeline for analyzing OBD-II vehicle data usi
 
 - **PAL Agent (`granite-code:8b`)**: Answers questions over OBD CSV data via generated pandas code.
 - **RAG Agent (`granite3.3`)**: Answers general vehicle diagnostics questions from a document knowledge base.
-- **Agent Registry (`src/agent_registry.py`)**: Provides a shared interface to run either agent (`pal` or `rag`).
+- **Orchestrator Agent (`granite3.3`)**: Routes each question to PAL or RAG based on intent.
+- **Agent Registry (`src/agent_registry.py`)**: Provides a shared interface to run PAL or RAG directly.
 
-For now, routing is manual (you choose the CLI/agent). This structure is ready for future automatic routing.
+Routing is now automatic via the orchestrator CLI (`src/ask_agent.py`).
 
 ## Python Files Overview
 
@@ -83,6 +84,31 @@ python src/ask_diagnostics.py --question "How do I triage P0420?" --top-k 5 --sh
 **Usage:**
 Imported by future orchestration/router code. Not typically run directly.
 
+### src/ollama_orchestrator.py
+- **Purpose:** LLM router agent that decides whether a user prompt should go to PAL or RAG.
+- **Features:**
+  - Uses Ollama `granite3.3` for routing decisions
+  - Returns route + rationale
+  - Dispatches to PAL for data/CSV computation questions
+  - Dispatches to RAG for diagnostics knowledge questions
+
+**Usage:**
+Imported by `ask_agent.py`.
+
+### src/ask_agent.py
+- **Purpose:** Unified CLI entrypoint for the multi-agent system.
+- **Features:**
+  - Accepts one user question
+  - Uses orchestrator to choose `pal` vs `rag`
+  - Prints route rationale and agent details optionally
+
+**Usage:**
+```sh
+python src/ask_agent.py --help
+python src/ask_agent.py --question "What does P0300 usually indicate?" --show-route
+python src/ask_agent.py --question "What is average RPM in this log?" --csv data/obdiidata/drive1.csv --show-route --show-details
+```
+
 ### src/generate_golden_dataset.py
 - **Purpose:** Builds a golden dataset for benchmarking PAL accuracy.
 - **Features:**
@@ -105,6 +131,26 @@ python src/generate_golden_dataset.py --input data/obdiidata/ --output data/gold
 python src/evaluate_pal.py --golden data/golden/golden_dataset.csv --results data/results/pal_answers.csv
 ```
 
+### src/evaluate_router.py
+- **Purpose:** Evaluates orchestrator routing accuracy (`pal` vs `rag`) on a labeled prompt set.
+- **Features:**
+  - Runs each prompt through router decision logic
+  - Computes overall routing accuracy
+  - Exports per-prompt predictions and rationale
+  - Prints a confusion table (`expected_route` vs `predicted_route`)
+
+**Usage:**
+```sh
+python src/evaluate_router.py --golden-csv data/golden/router_golden_dataset.csv --output-csv data/golden/router_eval_results.csv
+python src/evaluate_router.py --router-model granite3.3 --limit 10
+```
+
+**Labeled Dataset Format (`data/golden/router_golden_dataset.csv`):**
+- `id`: unique integer
+- `question`: user prompt
+- `expected_route`: `pal` or `rag`
+- `csv_path` (optional): CSV path hint for data-oriented prompts
+
 ## Data Organization
 - **data/obdiidata/**: Contains raw OBD-II CSV files for analysis.
 - **knowledge/diagnostics/**: Contains RAG knowledge documents (`.md`/`.txt`) for diagnostics Q&A.
@@ -126,7 +172,9 @@ python src/evaluate_pal.py --golden data/golden/golden_dataset.csv --results dat
 4. Use:
    - `ask_obd.py` for PAL-over-CSV questions
    - `ask_diagnostics.py` for RAG diagnostics questions
-   - `generate_golden_dataset.py` and `evaluate_pal.py` for PAL benchmarking
+  - `ask_agent.py` for automatic routing (orchestrator -> PAL/RAG)
+  - `generate_golden_dataset.py` and `evaluate_pal.py` for PAL benchmarking
+  - `evaluate_router.py` for router accuracy benchmarking
 
 ## License
 MIT

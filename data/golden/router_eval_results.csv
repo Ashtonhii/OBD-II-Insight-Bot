@@ -1,0 +1,13 @@
+id,question,expected_route,predicted_route,csv_path_used,is_correct,execution_success,router_rationale,notes
+1,What is the average engine RPM in this log?,pal,pal,data/obdiidata/drive1.csv,1,1,The question requires computing the average engine RPM from a provided CSV log.,ok
+2,How many rows are in drive1.csv?,pal,pal,data/obdiidata/drive1.csv,1,1,"The question requires computing the number of rows in a specific CSV file, drive1.csv.",ok
+3,What is the maximum vehicle speed from this dataset?,pal,pal,data/obdiidata/drive1.csv,1,1,"The question requires computing the maximum vehicle speed from a dataset, which falls under the category of aggregating values from telemetry data logs.",ok
+4,Does this log show higher RPM when speed is above 30?,pal,pal,data/obdiidata/drive1.csv,1,1,The question requires analysis of CSV telemetry data logs to determine if higher RPM occurs when speed is above 30.,ok
+5,What does diagnostic code P0300 usually indicate?,rag,rag,,1,1,The question asks for general diagnostic knowledge without reference to a specific dataset or log.,ok
+6,What are common root causes of P0420?,rag,rag,,1,1,"The question asks for general diagnostic knowledge about a specific DTC (Diagnostic Trouble Code), P0420, which does not require analysis of any provided CSV telemetry or data logs.",ok
+7,How should I triage an overheating engine complaint?,rag,rag,,1,1,"The question asks for a general triage method for an overheating engine complaint, which does not require analysis of specific CSV telemetry or data logs.",ok
+8,What checks should I do first for a rough idle?,rag,rag,,1,1,The question asks for general diagnostic guidance without reference to a specific dataset or log.,ok
+9,"Based on this csv, what percent of rows have vehicle_speed > 0?",pal,pal,data/obdiidata/live1.csv,1,1,The question requires computing a percentage based on a condition applied to the values in a CSV dataset.,ok
+10,Can a vacuum leak cause lean fuel trims?,rag,rag,,1,1,"The question asks for a general diagnostic concept, not for analysis of specific data.",ok
+11,"In this file, what is the highest coolant temperature?",pal,pal,data/obdiidata/idle1.csv,1,1,The question requires computing a specific value (highest coolant temperature) from the provided CSV telemetry data logs.,ok
+12,Explain a general workflow to validate a repair after fixing a misfire.,rag,rag,,1,1,"The question asks for a general workflow to validate a repair after fixing a misfire, which does not require analysis of specific CSV telemetry/data logs.",ok
