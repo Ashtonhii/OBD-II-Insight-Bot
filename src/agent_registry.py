@@ -36,7 +36,7 @@ def run_pal_agent(
 def run_rag_agent(
     *,
     question: str,
-    docs_dir: str | Path = "knowledge/diagnostics",
+    docs_dir: str | Path = "knowledge/diagnostics/fault_codes_database.md",
     model: str = "granite3.3",
     top_k: int = 4,
     conversation_context: str = "",

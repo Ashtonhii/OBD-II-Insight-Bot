@@ -12,8 +12,8 @@ def main() -> None:
     parser.add_argument("--question", required=True, help="Diagnostics question to answer")
     parser.add_argument(
         "--docs-dir",
-        default="knowledge/diagnostics",
-        help="Directory containing .md/.txt diagnostics documents",
+        default="knowledge/diagnostics/fault_codes_database.md",
+        help="Diagnostics knowledge path: either a .md/.txt file or a directory of .md/.txt files",
     )
     parser.add_argument("--model", default="granite3.3", help="Ollama model name")
     parser.add_argument("--top-k", type=int, default=4, help="Number of chunks to retrieve")
