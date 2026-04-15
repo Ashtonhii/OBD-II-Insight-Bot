@@ -173,7 +173,7 @@ class OllamaPAL:
         except ImportError:
             return df.to_string(index=False)
 
-    def _generate_code(self, df: pd.DataFrame, question: str) -> str:
+    def _generate_code(self, df: pd.DataFrame, question: str, conversation_context: str = "") -> str:
         schema_context = self._build_schema_context(df)
 
         system_prompt = (
@@ -184,9 +184,14 @@ class OllamaPAL:
             "Store the final answer object in variable result."
         )
 
+        conversation_block = ""
+        if conversation_context.strip():
+            conversation_block = f"Prior conversation context (for context only, not data):\n{conversation_context}\n\n"
+
         user_prompt = (
             "Dataset context:\n"
             f"{schema_context}\n\n"
+            f"{conversation_block}"
             "Question:\n"
             f"{question}\n\n"
             "Rules:\n"
@@ -233,7 +238,7 @@ class OllamaPAL:
 
         return local_vars["result"]
 
-    def _summarize_result(self, question: str, result: Any) -> tuple[str, str]:
+    def _summarize_result(self, question: str, result: Any, conversation_context: str = "") -> tuple[str, str]:
         if isinstance(result, pd.DataFrame):
             preview = self._render_table(result.head(10))
         elif isinstance(result, pd.Series):
@@ -241,10 +246,15 @@ class OllamaPAL:
         else:
             preview = str(result)
 
+        conversation_block = ""
+        if conversation_context.strip():
+            conversation_block = f"Prior conversation context:\n{conversation_context}\n\n"
+
         prompt = (
             "Answer the question using the computed result. "
             "Be concise and data-focused."
-            f"\n\nQuestion:\n{question}"
+            f"\n\n{conversation_block}"
+            f"Current question:\n{question}"
             f"\n\nComputed result:\n{preview}"
         )
 
@@ -257,10 +267,10 @@ class OllamaPAL:
         )
         return answer.strip(), preview
 
-    def ask(self, df: pd.DataFrame, question: str) -> PALResult:
-        code = self._generate_code(df=df, question=question)
+    def ask(self, df: pd.DataFrame, question: str, conversation_context: str = "") -> PALResult:
+        code = self._generate_code(df=df, question=question, conversation_context=conversation_context)
         result = self._execute_code(df=df, code=code)
-        answer, preview = self._summarize_result(question=question, result=result)
+        answer, preview = self._summarize_result(question=question, result=result, conversation_context=conversation_context)
         return PALResult(answer=answer, code=code, result_preview=preview)
 
 
@@ -268,6 +278,7 @@ def ask_question_on_csv(
     csv_path: str | Path,
     question: str,
     model: str = "granite-code:8b",
+    conversation_context: str = "",
 ) -> PALResult:
     resolved_path = _resolve_csv_path(csv_path)
     df = load_and_prep_obd_data(
@@ -279,7 +290,7 @@ def ask_question_on_csv(
         preserve_empty_cells=True,
     )
     pal = OllamaPAL(model=model)
-    return pal.ask(df=df, question=question)
+    return pal.ask(df=df, question=question, conversation_context=conversation_context)
 
 
 def _resolve_csv_path(csv_path: str | Path) -> Path:

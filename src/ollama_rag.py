@@ -169,7 +169,7 @@ class OllamaDiagnosticsRAG:
         selected_indices = [idx for _, idx in scored[: max(1, top_k)]]
         return [chunks[idx] for idx in selected_indices]
 
-    def _build_prompt(self, question: str, contexts: list[RetrievalChunk]) -> list[dict[str, str]]:
+    def _build_prompt(self, question: str, contexts: list[RetrievalChunk], conversation_context: str = "") -> list[dict[str, str]]:
         context_blocks = []
         for chunk in contexts:
             context_blocks.append(
@@ -182,9 +182,14 @@ class OllamaDiagnosticsRAG:
             "If context is insufficient, say what is missing and avoid fabricating details."
         )
 
+        conversation_block = ""
+        if conversation_context.strip():
+            conversation_block = f"Prior conversation context:\n{conversation_context}\n\n"
+
         user_prompt = (
             "Retrieved knowledge base context:\n\n"
             f"{'\n\n---\n\n'.join(context_blocks)}\n\n"
+            f"{conversation_block}"
             f"Question: {question}\n\n"
             "Return a practical, concise answer for a technician."
         )
@@ -194,12 +199,12 @@ class OllamaDiagnosticsRAG:
             {"role": "user", "content": user_prompt},
         ]
 
-    def ask(self, question: str, top_k: int = 4) -> RAGResult:
+    def ask(self, question: str, top_k: int = 4, conversation_context: str = "") -> RAGResult:
         docs = self._discover_docs()
         chunks = self._build_chunks(docs)
         contexts = self._retrieve(question=question, chunks=chunks, top_k=top_k)
 
-        messages = self._build_prompt(question=question, contexts=contexts)
+        messages = self._build_prompt(question=question, contexts=contexts, conversation_context=conversation_context)
         answer = self._chat(messages, temperature=0.1).strip()
 
         return RAGResult(answer=answer, contexts=contexts)
@@ -210,6 +215,7 @@ def ask_vehicle_diagnostics(
     docs_dir: str | Path = "knowledge/diagnostics",
     model: str = "granite3.3",
     top_k: int = 4,
+    conversation_context: str = "",
 ) -> RAGResult:
     rag = OllamaDiagnosticsRAG(model=model, docs_dir=docs_dir)
-    return rag.ask(question=question, top_k=top_k)
+    return rag.ask(question=question, top_k=top_k, conversation_context=conversation_context)
