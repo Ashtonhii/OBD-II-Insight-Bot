@@ -22,7 +22,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--docs-dir",
-        default="knowledge/diagnostics",
+        default="knowledge/diagnostics/fault_codes_database.md",
         help="Directory containing diagnostics .md/.txt docs for RAG",
     )
     parser.add_argument(

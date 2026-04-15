@@ -11,6 +11,7 @@ from urllib import error, request
 
 
 WORD_PATTERN = re.compile(r"[a-z0-9_]+")
+DTC_PATTERN = re.compile(r"\b[PCBU][0-9A-F]{4}\b", re.IGNORECASE)
 SUPPORTED_DOC_SUFFIXES = {".txt", ".md"}
 
 
@@ -32,7 +33,7 @@ class OllamaDiagnosticsRAG:
         self,
         model: str = "granite3.3",
         base_url: str = "http://localhost:11434",
-        docs_dir: str | Path = "knowledge/diagnostics",
+        docs_dir: str | Path = "knowledge/diagnostics/fault_codes_database.md",
         chunk_size: int = 900,
         chunk_overlap: int = 180,
     ) -> None:
@@ -75,9 +76,17 @@ class OllamaDiagnosticsRAG:
     def _discover_docs(self) -> list[Path]:
         if not self.docs_dir.exists():
             raise FileNotFoundError(
-                f"Diagnostics knowledge directory not found: '{self.docs_dir}'. "
-                "Create it and add .md/.txt files."
+                f"Diagnostics knowledge path not found: '{self.docs_dir}'. "
+                "Provide an existing .md/.txt file or directory."
             )
+
+        if self.docs_dir.is_file():
+            if self.docs_dir.suffix.lower() not in SUPPORTED_DOC_SUFFIXES:
+                raise ValueError(
+                    f"Unsupported diagnostics file type: '{self.docs_dir.suffix}'. "
+                    "Use a .md or .txt file."
+                )
+            return [self.docs_dir]
 
         files = [
             path
@@ -112,12 +121,85 @@ class OllamaDiagnosticsRAG:
         all_chunks: list[RetrievalChunk] = []
         for file_path in files:
             text = file_path.read_text(encoding="utf-8", errors="ignore")
+
+            # Prefer line-based DTC entry chunks when the source looks like a code database.
+            dtc_chunks = self._build_dtc_entry_chunks(text=text, source=file_path)
+            if dtc_chunks:
+                all_chunks.extend(dtc_chunks)
+                continue
+
             chunks = self._chunk_text(text)
             for index, chunk in enumerate(chunks, start=1):
                 all_chunks.append(RetrievalChunk(source=file_path, chunk_id=index, text=chunk))
         if not all_chunks:
             raise ValueError("Documents were found, but no non-empty text chunks were produced.")
         return all_chunks
+
+    @staticmethod
+    def _extract_question_codes(question: str) -> list[str]:
+        seen: set[str] = set()
+        codes: list[str] = []
+        for match in DTC_PATTERN.findall(str(question)):
+            code = match.upper()
+            if code not in seen:
+                seen.add(code)
+                codes.append(code)
+        return codes
+
+    @staticmethod
+    def _build_dtc_entry_chunks(text: str, source: Path) -> list[RetrievalChunk]:
+        lines = [line.strip() for line in text.splitlines()]
+        entries: list[tuple[str, str]] = []
+
+        current_code = ""
+        current_desc_parts: list[str] = []
+
+        for line in lines:
+            if not line:
+                continue
+
+            match = DTC_PATTERN.match(line)
+            if match:
+                if current_code:
+                    description = " ".join(part.strip() for part in current_desc_parts if part.strip())
+                    if description:
+                        entries.append((current_code, re.sub(r"\s+", " ", description).strip()))
+
+                current_code = match.group(0).upper()
+                remainder = line[match.end():].strip(" -:\t")
+                current_desc_parts = [remainder] if remainder else []
+                continue
+
+            if current_code:
+                # Continuation line for wrapped descriptions in large code tables.
+                current_desc_parts.append(line)
+
+        if current_code:
+            description = " ".join(part.strip() for part in current_desc_parts if part.strip())
+            if description:
+                entries.append((current_code, re.sub(r"\s+", " ", description).strip()))
+
+        if not entries:
+            return []
+
+        chunks: list[RetrievalChunk] = []
+        for idx, (code, description) in enumerate(entries, start=1):
+            chunks.append(
+                RetrievalChunk(
+                    source=source,
+                    chunk_id=idx,
+                    text=(
+                        f"Code: {code}\n"
+                        f"Description: {description}\n"
+                        "General frame of action:\n"
+                        "1) Confirm code and freeze-frame/live data.\n"
+                        "2) Inspect related wiring/connectors/components for obvious faults.\n"
+                        "3) Perform targeted tests per service information before replacing parts.\n"
+                        "4) Repair, clear code, and verify with drive cycle."
+                    ),
+                )
+            )
+        return chunks
 
     def _tfidf_vectors(self, chunks: list[RetrievalChunk]) -> tuple[list[Counter[str]], dict[str, float]]:
         tokenized_docs: list[list[str]] = [self._tokenize(chunk.text) for chunk in chunks]
@@ -139,6 +221,16 @@ class OllamaDiagnosticsRAG:
         return math.sqrt(sum(value * value for value in weighted.values()))
 
     def _retrieve(self, question: str, chunks: list[RetrievalChunk], top_k: int = 4) -> list[RetrievalChunk]:
+        requested_codes = self._extract_question_codes(question)
+        if requested_codes:
+            exact_matches = [
+                chunk
+                for chunk in chunks
+                if any(f"Code: {code}" in chunk.text for code in requested_codes)
+            ]
+            if exact_matches:
+                return exact_matches[: max(1, top_k)]
+
         term_freqs, idf = self._tfidf_vectors(chunks)
 
         query_tf = Counter(self._tokenize(question))
@@ -179,7 +271,8 @@ class OllamaDiagnosticsRAG:
         system_prompt = (
             "You are a vehicle diagnostics assistant. "
             "Answer only from the provided context. "
-            "If context is insufficient, say what is missing and avoid fabricating details."
+            "If context is insufficient, say what is missing and avoid fabricating details. "
+            "When causes/symptoms are not explicitly present in context, provide a concise definition and a general diagnostic action framework."
         )
 
         conversation_block = ""
@@ -212,7 +305,7 @@ class OllamaDiagnosticsRAG:
 
 def ask_vehicle_diagnostics(
     question: str,
-    docs_dir: str | Path = "knowledge/diagnostics",
+    docs_dir: str | Path = "knowledge/diagnostics/fault_codes_database.md",
     model: str = "granite3.3",
     top_k: int = 4,
     conversation_context: str = "",

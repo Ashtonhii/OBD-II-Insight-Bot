@@ -247,7 +247,7 @@ class OllamaOrchestrator:
         session_id: str | None = None,
         pal_model: str = "granite-code:8b",
         rag_model: str = "granite3.3",
-        docs_dir: str | Path = "knowledge/diagnostics",
+        docs_dir: str | Path = "knowledge/diagnostics/fault_codes_database.md",
         top_k: int = 4,
     ) -> OrchestratorResult:
         decision = self.decide_route(question=question, csv_path=csv_path, session_id=session_id)
@@ -300,7 +300,7 @@ def orchestrate_question(
     router_model: str = "granite3.3",
     pal_model: str = "granite-code:8b",
     rag_model: str = "granite3.3",
-    docs_dir: str | Path = "knowledge/diagnostics",
+    docs_dir: str | Path = "knowledge/diagnostics/fault_codes_database.md",
     top_k: int = 4,
 ) -> OrchestratorResult:
     orchestrator = OllamaOrchestrator(model=router_model)

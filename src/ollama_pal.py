@@ -173,7 +173,13 @@ class OllamaPAL:
         except ImportError:
             return df.to_string(index=False)
 
-    def _generate_code(self, df: pd.DataFrame, question: str, conversation_context: str = "") -> str:
+    def _generate_code(
+        self,
+        df: pd.DataFrame,
+        question: str,
+        conversation_context: str = "",
+        execution_error: str = "",
+    ) -> str:
         schema_context = self._build_schema_context(df)
 
         system_prompt = (
@@ -181,23 +187,34 @@ class OllamaPAL:
             "Write Python code only, no explanations. "
             "Assume a pandas DataFrame named df already exists. "
             "Do not import anything. "
-            "Store the final answer object in variable result."
+            "Store the final answer object in variable result. "
+            "Only reference columns that exist in the provided dataset context."
         )
 
         conversation_block = ""
         if conversation_context.strip():
             conversation_block = f"Prior conversation context (for context only, not data):\n{conversation_context}\n\n"
 
+        error_block = ""
+        if execution_error.strip():
+            error_block = (
+                "Previous generated code failed. Fix it and regenerate valid code.\n"
+                f"Execution error:\n{execution_error}\n\n"
+            )
+
         user_prompt = (
             "Dataset context:\n"
             f"{schema_context}\n\n"
             f"{conversation_block}"
+            f"{error_block}"
             "Question:\n"
             f"{question}\n\n"
             "Rules:\n"
             "1) Use only pandas operations on df.\n"
             "2) Return concise object in result (scalar, Series, or small DataFrame).\n"
-            "3) If question is ambiguous, choose the most reasonable interpretation."
+            "3) If question is ambiguous, choose the most reasonable interpretation.\n"
+            "4) Never select columns that are not present in df.columns.\n"
+            "5) For follow-up conversion questions (e.g., mph to km/h), compute from relevant existing columns only."
         )
 
         text = self._chat(
@@ -269,7 +286,19 @@ class OllamaPAL:
 
     def ask(self, df: pd.DataFrame, question: str, conversation_context: str = "") -> PALResult:
         code = self._generate_code(df=df, question=question, conversation_context=conversation_context)
-        result = self._execute_code(df=df, code=code)
+
+        try:
+            result = self._execute_code(df=df, code=code)
+        except PALExecutionError as first_exc:
+            retry_code = self._generate_code(
+                df=df,
+                question=question,
+                conversation_context=conversation_context,
+                execution_error=str(first_exc),
+            )
+            result = self._execute_code(df=df, code=retry_code)
+            code = retry_code
+
         answer, preview = self._summarize_result(question=question, result=result, conversation_context=conversation_context)
         return PALResult(answer=answer, code=code, result_preview=preview)
 
