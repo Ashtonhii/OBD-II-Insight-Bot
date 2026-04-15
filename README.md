@@ -192,6 +192,17 @@ python src/evaluate_router.py --router-model granite3.3 --limit 10
   ```sh
   set REDIS_URL=redis://localhost:6379/0
   ```
+  Docker-based Redis (recommended on Windows):
+  ```sh
+  # Start Docker Desktop first, then run:
+  docker run -d --name obd-redis -p 6379:6379 redis:7
+
+  # If container already exists:
+  docker start obd-redis
+
+  # Verify Redis is healthy:
+  docker exec -it obd-redis redis-cli PING
+  ```
 4. Run CLI scripts from the `src/` directory using the examples above.
 5. Use:
    - `ask_obd.py` for PAL-over-CSV questions
@@ -199,6 +210,72 @@ python src/evaluate_router.py --router-model granite3.3 --limit 10
   - `ask_agent.py` for automatic routing (orchestrator -> PAL/RAG)
   - `generate_golden_dataset.py` and `evaluate_pal.py` for PAL benchmarking
   - `evaluate_router.py` for router accuracy benchmarking
+
+## Memory Testing (PAL + RAG)
+
+Use the orchestrator entrypoint (`ask_agent.py`) for memory testing. The `ask_obd.py` script bypasses orchestrator memory.
+
+### Provided Test Scripts
+
+- `test_pal_memory.ps1`: runs 2 PAL-oriented turns in the same session (`memtest-pal`)
+- `test_rag_memory.ps1`: runs 2 RAG-oriented turns in the same session (`memtest-rag`)
+
+Run from repository root:
+
+```sh
+.\test_pal_memory.ps1
+.\test_rag_memory.ps1
+```
+
+If PowerShell blocks script execution:
+
+```sh
+Set-ExecutionPolicy -Scope Process RemoteSigned
+```
+
+### Verify Stored Memory in Redis
+
+List memory keys:
+
+```sh
+docker exec -it obd-redis redis-cli KEYS "obd:orchestrator:memory:*"
+```
+
+Inspect PAL test session:
+
+```sh
+docker exec -it obd-redis redis-cli GET "obd:orchestrator:memory:memtest-pal"
+```
+
+Inspect RAG test session:
+
+```sh
+docker exec -it obd-redis redis-cli GET "obd:orchestrator:memory:memtest-rag"
+```
+
+Pretty-print JSON payload:
+
+```sh
+$raw = docker exec -i obd-redis redis-cli GET "obd:orchestrator:memory:memtest-pal"
+$raw | .\venv\Scripts\python.exe -m json.tool
+```
+
+### Clear Memory History
+
+Clear one session history:
+
+```sh
+docker exec -it obd-redis redis-cli DEL "obd:orchestrator:memory:memtest-pal"
+docker exec -it obd-redis redis-cli DEL "obd:orchestrator:memory:memtest-rag"
+```
+
+Clear all orchestrator session histories:
+
+```sh
+docker exec -it obd-redis redis-cli EVAL "for _,k in ipairs(redis.call('keys', ARGV[1])) do redis.call('del', k) end return 'OK'" 0 "obd:orchestrator:memory:*"
+```
+
+Expected result: each session key stores a JSON object with a `turns` array that grows after each run.
 
 ## License
 MIT
