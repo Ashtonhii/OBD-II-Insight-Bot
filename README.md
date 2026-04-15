@@ -90,7 +90,7 @@ Imported by future orchestration/router code. Not typically run directly.
 - **Features:**
   - Uses Ollama `granite3.3` for routing decisions
   - Includes recent session memory in routing prompts
-  - Persists each turn to disk for multi-turn context
+  - Persists each turn in Redis for multi-turn context
   - Returns route + rationale
   - Dispatches to PAL for data/CSV computation questions
   - Dispatches to RAG for diagnostics knowledge questions
@@ -116,8 +116,9 @@ python src/ask_agent.py --question "What is average RPM in this log?" --csv data
 ### src/conversation_memory.py
 - **Purpose:** Persists orchestrator session history for conversational routing context.
 - **Features:**
-  - Stores turns in JSON files under `data/memory/orchestrator/`
-  - Sanitizes session IDs for safe file paths
+  - Stores turns in Redis (default: `redis://localhost:6379/0`)
+  - Sanitizes session IDs for safe Redis keys
+  - Uses key prefix `obd:orchestrator:memory:`
   - Formats recent turns for router prompt context
 
 **Usage:**
@@ -182,8 +183,17 @@ python src/evaluate_router.py --router-model granite3.3 --limit 10
   ollama pull granite-code:8b
   ollama pull granite3.3
   ```
-3. Run CLI scripts from the `src/` directory using the examples above.
-4. Use:
+3. Ensure Redis is running for conversation memory:
+  ```sh
+  # default connection used by conversation_memory.py
+  # redis://localhost:6379/0
+  ```
+  Optional: set a custom Redis URL:
+  ```sh
+  set REDIS_URL=redis://localhost:6379/0
+  ```
+4. Run CLI scripts from the `src/` directory using the examples above.
+5. Use:
    - `ask_obd.py` for PAL-over-CSV questions
    - `ask_diagnostics.py` for RAG diagnostics questions
   - `ask_agent.py` for automatic routing (orchestrator -> PAL/RAG)

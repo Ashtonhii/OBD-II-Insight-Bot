@@ -170,12 +170,32 @@ class OllamaOrchestrator:
     ) -> OrchestratorResult:
         decision = self.decide_route(question=question, csv_path=csv_path, session_id=session_id)
 
+        # Extract conversation context for agents if session exists
+        conversation_context = ""
+        if session_id:
+            conversation_context = self.memory.format_recent_context(
+                session_id=session_id,
+                max_turns=3,  # Keep agent context tight (3 prior turns)
+                max_chars_per_answer=200,  # Shorter answers in agent context
+            )
+
         if decision.route == "pal":
             if not csv_path:
                 raise ValueError("PAL route selected but csv_path was not provided.")
-            response = run_pal_agent(csv_path=csv_path, question=question, model=pal_model)
+            response = run_pal_agent(
+                csv_path=csv_path,
+                question=question,
+                model=pal_model,
+                conversation_context=conversation_context,
+            )
         else:
-            response = run_rag_agent(question=question, docs_dir=docs_dir, model=rag_model, top_k=top_k)
+            response = run_rag_agent(
+                question=question,
+                docs_dir=docs_dir,
+                model=rag_model,
+                top_k=top_k,
+                conversation_context=conversation_context,
+            )
 
         if session_id:
             self.memory.append_turn(
