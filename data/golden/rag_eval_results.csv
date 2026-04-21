@@ -1,0 +1,101 @@
+id,dtc_code,question,expected_answer,model_raw_answer,normalized_model_answer,docs_path_used,execution_success,exact_match,notes
+1,P0001,P0001,Fuel Volume Regulator Control Circuit/Open,Fuel Volume Regulator Control Circuit/Open,fuel volume regulator control circuit/open,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+2,P0001,Fuel Volume Regulator Control Circuit/Open,P0001,P0001,p0001,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+3,P0066,P0066,Air Assisted Injector Control Circuit or Circuit Low,Air Assisted Injector Control Circuit or Circuit Low,air assisted injector control circuit or circuit low,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+4,P0066,Air Assisted Injector Control Circuit or Circuit Low,P0066,P0066,p0066,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+5,P0133,P0133,O2 Sensor Circuit Slow Response (Bank 1 Sensor 1),O2 Sensor Circuit Slow Response (Bank 1 Sensor 1),o2 sensor circuit slow response (bank 1 sensor 1),knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+6,P0133,O2 Sensor Circuit Slow Response (Bank 1 Sensor 1),P0133,P0133,p0133,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+7,P0202,P0202,Injector Circuit Malfunction- Cylinder 2,Injector Circuit Malfunction- Cylinder 2,injector circuit malfunction- cylinder 2,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+8,P0202,Injector Circuit Malfunction- Cylinder 2,P0202,P0202,p0202,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+9,P0268,P0268,Cylinder 3 Injector Circuit High,Cylinder 3 Injector Circuit High,cylinder 3 injector circuit high,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+10,P0268,Cylinder 3 Injector Circuit High,P0268,P0268,p0268,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+11,P0344,P0344,Camshaft Position Sensor Circuit Intermittent,Camshaft Position Sensor Circuit Intermittent,camshaft position sensor circuit intermittent,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+12,P0344,Camshaft Position Sensor Circuit Intermittent,P0344,P0344,p0344,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+13,P0438,P0438,Catalyst Temperature Sensor High Input (Bank 2),Catalyst Temperature Sensor High Input (Bank 2),catalyst temperature sensor high input (bank 2),knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+14,P0438,Catalyst Temperature Sensor High Input (Bank 2),P0438,P0438,p0438,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+15,P0560,P0560,System Voltage Malfunction,System Voltage Malfunction,system voltage malfunction,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+16,P0560,System Voltage Malfunction,P0560,P0560,p0560,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+17,P0728,P0728,Engine Speed Input Circuit Intermittent,Engine Speed Input Circuit Intermittent,engine speed input circuit intermittent,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+18,P0728,Engine Speed Input Circuit Intermittent,P0728,P0728,p0728,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+19,P1104,P1104,MAF Ground Malfunction,MAF Ground Malfunction,maf ground malfunction,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+20,P1104,MAF Ground Malfunction,P1104,P1104,p1104,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+21,P1182,P1182,Fuel Shut Off Solenoid Malfunction,Fuel Shut Off Solenoid Malfunction,fuel shut off solenoid malfunction,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+22,P1182,Fuel Shut Off Solenoid Malfunction,P1182,P1182,p1182,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+23,P1250,P1250,PRC Solenoid Circuit Malfunction,PRC Solenoid Circuit Malfunction,prc solenoid circuit malfunction,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+24,P1250,PRC Solenoid Circuit Malfunction,P1250,P1250,p1250,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+25,P1340,P1340,Camshaft Position Sensor B Circuit Malfunction,Camshaft Position Sensor B Circuit Malfunction,camshaft position sensor b circuit malfunction,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+26,P1340,Camshaft Position Sensor B Circuit Malfunction,P1340,P1340,p1340,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+27,P1418,P1418,Split Air #1 Circuit Malfunction,Split Air #1 Circuit Malfunction,split air #1 circuit malfunction,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+28,P1418,Split Air #1 Circuit Malfunction,P1418,P1418,p1418,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+29,P1486,P1486,EGRA Circuit Malfunction,EGRA Circuit Malfunction,egra circuit malfunction,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+30,P1486,EGRA Circuit Malfunction,P1486,P1486,p1486,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+31,P1581,P1581,Electronic Throttle Monitor Malfunction,Electronic Throttle Monitor Malfunction,electronic throttle monitor malfunction,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+32,P1581,Electronic Throttle Monitor Malfunction,P1581,P1581,p1581,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+33,P1668,P1668,PCM- IDM Communications Error,PCM- IDM Communications Error,pcm- idm communications error,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+34,P1668,PCM- IDM Communications Error,P1668,P1668,p1668,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+35,P1751,P1751,Shift Solenoid A Performance,Shift Solenoid A Performance,shift solenoid a performance,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+36,P1751,Shift Solenoid A Performance,P1751,P0751,p0751,knowledge\diagnostics\fault_codes_database.md,1,0,mismatch
+37,P1829,P1829,Transmission Transfer Case Counter Clockwise Shift Relay Coil Open Circuit,Transmission Transfer Case Counter Clockwise Shift Relay Coil Open Circuit,transmission transfer case counter clockwise shift relay coil open circuit,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+38,P1829,Transmission Transfer Case Counter Clockwise Shift Relay Coil Open Circuit,P1829,P1829,p1829,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+39,P1905,P1905,"Pressure Control Solenoid ""C"" Intermittent Short","Pressure Control Solenoid ""C"" Intermittent Short","pressure control solenoid ""c"" intermittent short",knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+40,P1905,"Pressure Control Solenoid ""C"" Intermittent Short",P1905,P1905,p1905,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+41,C1163,C1163,Park Brake Switch # 2 Applied Circuit Short to Gnd,Park Brake Switch # 2 Applied Circuit Short to Gnd,park brake switch # 2 applied circuit short to gnd,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+42,C1163,Park Brake Switch # 2 Applied Circuit Short to Gnd,C1163,C1163,c1163,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+43,C1229,C1229,Speed Wheel Sensor Rear Center Coherency Fault,Speed Wheel Sensor Rear Center Coherency Fault,speed wheel sensor rear center coherency fault,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+44,C1229,Speed Wheel Sensor Rear Center Coherency Fault,C1229,C1229,c1229,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+45,C1404,C1404,Traction Control Valve Rear Circuit Failure,Traction Control Valve Rear Circuit Failure,traction control valve rear circuit failure,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+46,C1404,Traction Control Valve Rear Circuit Failure,C1404,C1404,c1404,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+47,C1498,C1498,Traction Control Motor Potentiometer Circuit Short to Ground,Traction Control Motor Potentiometer Circuit Short to Ground,traction control motor potentiometer circuit short to ground,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+48,C1498,Traction Control Motor Potentiometer Circuit Short to Ground,C1498,C1498,c1498,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+49,C1752,C1752,Vehicle Speed Sensor # 1 Output Circuit Short to Gnd,Vehicle Speed Sensor # 1 Output Circuit Short to Gnd,vehicle speed sensor # 1 output circuit short to gnd,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+50,C1752,Vehicle Speed Sensor # 1 Output Circuit Short to Gnd,C1752,C1752,c1752,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+51,C1853,C1853,Air Suspension Warning Lamp Circuit Short To Ground,Air Suspension Warning Lamp Circuit Short To Ground,air suspension warning lamp circuit short to ground,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+52,C1853,Air Suspension Warning Lamp Circuit Short To Ground,C1853,C1853,c1853,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+53,C1921,C1921,VAPS Solenoid Actuator Output Circuit Failure,VAPS Solenoid Actuator Output Circuit Failure,vaps solenoid actuator output circuit failure,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+54,C1921,VAPS Solenoid Actuator Output Circuit Failure,C1921,C1921,c1921,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+55,B1224,B1224,Fuel Temperature Sensor #1 Circuit Short to Battery,Fuel Temperature Sensor #1 Circuit Short to Battery,fuel temperature sensor #1 circuit short to battery,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+56,B1224,Fuel Temperature Sensor #1 Circuit Short to Battery,B1224,B1224,b1224,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+57,B1290,B1290,Servo Motor Potentiometer Airintake Right Circuit Short To Battery,Servo Motor Potentiometer Airintake Right Circuit Short To Battery,servo motor potentiometer airintake right circuit short to battery,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+58,B1290,Servo Motor Potentiometer Airintake Right Circuit Short To Battery,B1290,B1290,b1290,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+59,B1355,B1355,Ignition Run Circuit Failure,Ignition Run Circuit Failure,ignition run circuit failure,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+60,B1355,Ignition Run Circuit Failure,B1355,B1355,b1355,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+61,B1421,B1421,Passenger Power Window Motor Circuit Short To Ground,Passenger Power Window Motor Circuit Short To Ground,passenger power window motor circuit short to ground,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+62,B1421,Passenger Power Window Motor Circuit Short To Ground,B1421,B1421,b1421,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+63,B1486,B1486,Brake Pedal Input Circuit Ground Short,Brake Pedal Input Circuit Ground Short,brake pedal input circuit ground short,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+64,B1486,Brake Pedal Input Circuit Ground Short,B1486,B1486,b1486,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+65,B1552,B1552,Decklid Release Circuit Open,Decklid Release Circuit Open,decklid release circuit open,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+66,B1552,Decklid Release Circuit Open,B1552,B1552,b1552,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+67,B1617,B1617,Wiper Rear Disable Switch Circuit Short To Battery,Wiper Rear Disable Switch Circuit Short To Battery,wiper rear disable switch circuit short to battery,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+68,B1617,Wiper Rear Disable Switch Circuit Short To Battery,B1617,B1617,b1617,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+69,B1683,B1683,Mirror Driver/Passenger Switch Circuit Failure,Mirror Driver/Passenger Switch Circuit Failure,mirror driver/passenger switch circuit failure,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+70,B1683,Mirror Driver/Passenger Switch Circuit Failure,B1683,B1683,b1683,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+71,B1748,B1748,Mirror Passenger Horizontal Switch Circuit Short To Ground,Mirror Passenger Horizontal Switch Circuit Short To Ground,mirror passenger horizontal switch circuit short to ground,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+72,B1748,Mirror Passenger Horizontal Switch Circuit Short To Ground,B1748,B1748,b1748,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+73,B1813,B1813,Lamp Backup Switch Input Circuit Short To Ground,Lamp Backup Switch Input Circuit Short To Ground,lamp backup switch input circuit short to ground,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+74,B1813,Lamp Backup Switch Input Circuit Short To Ground,B1813,B1813,b1813,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+75,B1879,B1879,Seatbelt Driver Pretensioner Circuit Short to Ground,Seatbelt Driver Pretensioner Circuit Short to Ground,seatbelt driver pretensioner circuit short to ground,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+76,B1879,Seatbelt Driver Pretensioner Circuit Short to Ground,B1879,B1879,b1879,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+77,B1945,B1945,Air Bag Crash Sensor #2 Ground Circuit Open,Air Bag Crash Sensor #2 Ground Circuit Open,air bag crash sensor #2 ground circuit open,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+78,B1945,Air Bag Crash Sensor #2 Ground Circuit Open,B1945,B1945,b1945,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+79,B2111,B2111,All Door Lock Input Short to Ground,All Door Lock Input Short to Ground,all door lock input short to ground,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+80,B2111,All Door Lock Input Short to Ground,B2111,B2111,b2111,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+81,B2186,B2186,Window Passenger Front Remote Down Switch Short to Battery,Window Passenger Front Remote Down Switch Short to Battery,window passenger front remote down switch short to battery,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+82,B2186,Window Passenger Front Remote Down Switch Short to Battery,B2186,B2186,b2186,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+83,B2311,B2311,Mirror Passenger Memory Position Error,Mirror Passenger Memory Position Error,mirror passenger memory position error,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+84,B2311,Mirror Passenger Memory Position Error,B2311,B2311,b2311,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+85,B2406,B2406,Audio Single-Disc CD Player Internal Fault,Audio Single-Disc CD Player Internal Fault,audio single-disc cd player internal fault,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+86,B2406,Audio Single-Disc CD Player Internal Fault,B2406,B2406,b2406,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+87,B2491,B2491,RF PARK LAMP OUTPUT CIRCUIT Short to Battery,RF PARK LAMP OUTPUT CIRCUIT Short to Battery,rf park lamp output circuit short to battery,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+88,B2491,RF PARK LAMP OUTPUT CIRCUIT Short to Battery,B2491,B2491,b2491,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+89,B2570,B2570,Right Lamp Outage Signal Circuit Short to Ground,Right Lamp Outage Signal Circuit Short to Ground,right lamp outage signal circuit short to ground,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+90,B2570,Right Lamp Outage Signal Circuit Short to Ground,B2570,B2570,b2570,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+91,U1036,U1036,SCP (J1850)Invalid or Missing Data for Wheels,SCP (J1850)Invalid or Missing Data for Wheels,scp (j1850)invalid or missing data for wheels,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+92,U1036,SCP (J1850)Invalid or Missing Data for Wheels,U1036,U1036,u1036,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+93,U1102,U1102,SCP (J1850) Invalid or Missing Data for Primary Id,SCP (J1850) Invalid or Missing Data for Primary Id,scp (j1850) invalid or missing data for primary id,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+94,U1102,SCP (J1850) Invalid or Missing Data for Primary Id,U1102,U1000,u1000,knowledge\diagnostics\fault_codes_database.md,1,0,mismatch
+95,U1168,U1168,SCP (J1850) Invalid or Missing Data for Primary Id,SCP (J1850) Invalid or Missing Data for Primary Id,scp (j1850) invalid or missing data for primary id,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+96,U1168,SCP (J1850) Invalid or Missing Data for Primary Id,U1168,U1000,u1000,knowledge\diagnostics\fault_codes_database.md,1,0,mismatch
+97,U1234,U1234,SCP (J1850) Invalid or Missing Data for Displays,SCP (J1850) Invalid or Missing Data for Displays,scp (j1850) invalid or missing data for displays,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+98,U1234,SCP (J1850) Invalid or Missing Data for Displays,U1234,U1234,u1234,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match
+99,U2500,U2500,(CAN) Lack of Acknowledgement From Engine Management,(CAN) Lack of Acknowledgement From Engine Management # General Diagnostic Workflow 1. Verify customer complaint and collect DTC/freeze-frame data. 2. Prioritize root-cause codes over secondary/reactive codes. 3. Validate repair with drive cycle and confirm monitors complete.,(can) lack of acknowledgement from engine management # general diagnostic workflow 1. verify customer complaint and collect dtc/freeze-frame data. 2. prioritize root-cause codes over secondary/reactive codes. 3. validate repair with drive cycle and confirm monitors complete.,knowledge\diagnostics\fault_codes_database.md,1,1,contains_expected
+100,U2500,(CAN) Lack of Acknowledgement From Engine Management,U2500,U2500,u2500,knowledge\diagnostics\fault_codes_database.md,1,1,exact_match

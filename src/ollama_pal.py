@@ -255,13 +255,13 @@ class OllamaPAL:
 
         return local_vars["result"]
 
-    def _summarize_result(self, question: str, result: Any, conversation_context: str = "") -> tuple[str, str]:
-        if isinstance(result, pd.DataFrame):
-            preview = self._render_table(result.head(10))
-        elif isinstance(result, pd.Series):
-            preview = result.head(10).to_string()
-        else:
-            preview = str(result)
+    def _summarize_result(
+        self,
+        question: str,
+        result: Any,
+        conversation_context: str = "",
+    ) -> tuple[str, str]:
+        preview = self._build_result_preview(result)
 
         conversation_block = ""
         if conversation_context.strip():
@@ -284,7 +284,40 @@ class OllamaPAL:
         )
         return answer.strip(), preview
 
-    def ask(self, df: pd.DataFrame, question: str, conversation_context: str = "") -> PALResult:
+    def _build_result_preview(self, result: Any) -> str:
+        if isinstance(result, pd.DataFrame):
+            return self._render_table(result.head(10))
+        if isinstance(result, pd.Series):
+            return result.head(10).to_string()
+        return str(result)
+
+    def _result_to_answer_only_text(self, result: Any) -> str:
+        if isinstance(result, pd.DataFrame):
+            if result.shape == (1, 1):
+                value = result.iat[0, 0]
+                return "" if pd.isna(value) else str(value)
+            return self._render_table(result.head(10))
+
+        if isinstance(result, pd.Series):
+            if len(result) == 1:
+                value = result.iloc[0]
+                return "" if pd.isna(value) else str(value)
+            return result.head(10).to_string()
+
+        try:
+            if pd.isna(result):
+                return ""
+        except Exception:
+            pass
+        return str(result)
+
+    def ask(
+        self,
+        df: pd.DataFrame,
+        question: str,
+        conversation_context: str = "",
+        answer_only: bool = False,
+    ) -> PALResult:
         code = self._generate_code(df=df, question=question, conversation_context=conversation_context)
 
         try:
@@ -299,7 +332,15 @@ class OllamaPAL:
             result = self._execute_code(df=df, code=retry_code)
             code = retry_code
 
-        answer, preview = self._summarize_result(question=question, result=result, conversation_context=conversation_context)
+        if answer_only:
+            preview = self._build_result_preview(result)
+            answer = self._result_to_answer_only_text(result)
+        else:
+            answer, preview = self._summarize_result(
+                question=question,
+                result=result,
+                conversation_context=conversation_context,
+            )
         return PALResult(answer=answer, code=code, result_preview=preview)
 
 
@@ -308,6 +349,7 @@ def ask_question_on_csv(
     question: str,
     model: str = "granite-code:8b",
     conversation_context: str = "",
+    answer_only: bool = False,
 ) -> PALResult:
     resolved_path = _resolve_csv_path(csv_path)
     df = load_and_prep_obd_data(
@@ -319,7 +361,12 @@ def ask_question_on_csv(
         preserve_empty_cells=True,
     )
     pal = OllamaPAL(model=model)
-    return pal.ask(df=df, question=question, conversation_context=conversation_context)
+    return pal.ask(
+        df=df,
+        question=question,
+        conversation_context=conversation_context,
+        answer_only=answer_only,
+    )
 
 
 def _resolve_csv_path(csv_path: str | Path) -> Path:

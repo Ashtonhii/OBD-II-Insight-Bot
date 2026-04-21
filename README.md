@@ -5,7 +5,7 @@ This repository provides a robust pipeline for analyzing OBD-II vehicle data usi
 ## Multi-Agent Architecture (Current)
 
 - **PAL Agent (`granite-code:8b`)**: Answers questions over OBD CSV data via generated pandas code.
-- **RAG Agent (`granite3.3`)**: Answers general vehicle diagnostics questions from a document knowledge base.
+- **RAG Agent (`granite3.3`)**: Answers diagnostics questions from local markdown/text knowledge, defaulting to `knowledge/diagnostics/fault_codes_database.md`.
 - **Orchestrator Agent (`granite3.3`)**: Routes each question to PAL or RAG based on intent.
 - **Agent Registry (`src/agent_registry.py`)**: Provides a shared interface to run PAL or RAG directly.
 
@@ -32,6 +32,8 @@ python src/data_loader.py --input data/obdiidata/drive1.csv --output data/proces
 - **Features:**
   - Normalizes LLM-generated code
   - Strips imports and read_csv calls for safety
+  - Enforces existing-column usage in generated code prompts
+  - Retries once with execution-error feedback when generated code fails
   - Integrates with the data loader
 
 **Usage:**
@@ -54,8 +56,10 @@ python src/ask_obd.py --csv data/obdiidata/drive1.csv --question "What is the av
 ### src/ollama_rag.py
 - **Purpose:** Implements a retrieval-augmented generation (RAG) pipeline for vehicle diagnostics Q&A from local documents.
 - **Features:**
-  - Loads `.md` / `.txt` knowledge documents
-  - Chunks and indexes text using TF-IDF style retrieval
+  - Loads `.md` / `.txt` knowledge from a file path or directory
+  - Defaults to `knowledge/diagnostics/fault_codes_database.md`
+  - Uses DTC-aware entry chunking for large fault-code databases
+  - Uses exact-code retrieval first (e.g., `P0299`) before TF-IDF fallback
   - Uses `granite3.3` to answer from retrieved context only
 
 **Usage:**
@@ -64,15 +68,16 @@ This module is imported by `ask_diagnostics.py` and `agent_registry.py`.
 ### src/ask_diagnostics.py
 - **Purpose:** CLI for diagnostics questions not tied to CSV telemetry data.
 - **Features:**
-  - Retrieves relevant document chunks from `knowledge/diagnostics/`
+  - Retrieves relevant document chunks from a docs file or directory
+  - Defaults to `knowledge/diagnostics/fault_codes_database.md`
   - Sends grounded context to Ollama `granite3.3`
   - Optionally prints retrieved context
 
 **Usage:**
 ```sh
 python src/ask_diagnostics.py --help
-python src/ask_diagnostics.py --question "What are common causes of P0300?"
-python src/ask_diagnostics.py --question "How do I triage P0420?" --top-k 5 --show-context
+python src/ask_diagnostics.py --question "What is P0299?"
+python src/ask_diagnostics.py --question "What is P0420?" --docs-dir knowledge/diagnostics/fault_codes_database.md --top-k 5 --show-context
 ```
 
 ### src/agent_registry.py
@@ -89,6 +94,7 @@ Imported by future orchestration/router code. Not typically run directly.
 - **Purpose:** LLM router agent that decides whether a user prompt should go to PAL or RAG.
 - **Features:**
   - Uses Ollama `granite3.3` for routing decisions
+  - Applies deterministic PAL guardrails for CSV-based data-analysis/follow-up questions
   - Includes recent session memory in routing prompts
   - Persists each turn in Redis for multi-turn context
   - Returns route + rationale
@@ -104,6 +110,7 @@ Imported by `ask_agent.py`.
   - Accepts one user question
   - Uses orchestrator to choose `pal` vs `rag`
   - Maintains conversational memory by `--session-id`
+  - Supports diagnostics knowledge from a `.md/.txt` file path or directory via `--docs-dir`
   - Prints route rationale and agent details optionally
 
 **Usage:**
@@ -111,6 +118,19 @@ Imported by `ask_agent.py`.
 python src/ask_agent.py --help
 python src/ask_agent.py --question "What does P0300 usually indicate?" --session-id tech1 --show-route
 python src/ask_agent.py --question "What is average RPM in this log?" --csv data/obdiidata/drive1.csv --session-id tech1 --show-route --show-details
+python src/ask_agent.py --question "What is P0299?" --docs-dir knowledge/diagnostics/fault_codes_database.md --session-id tech1 --show-route
+```
+
+### src/generate_starter_guide_from_dtc.py
+- **Purpose:** Utility script to scrape/import DTC code descriptions from URL tables or CSV and generate a catalog file.
+- **Features:**
+  - Extracts and deduplicates DTC entries
+  - Supports merge behavior for CSV output
+  - Can export `.csv` or `.md`
+
+**Usage:**
+```sh
+python src/generate_starter_guide_from_dtc.py --source-url "https://www.klavkarr.com/data-trouble-code-obd2.php?dtc=p0000-p0299#dtc" --output knowledge/diagnostics/dtc_catalog.csv
 ```
 
 ### src/conversation_memory.py
@@ -146,6 +166,30 @@ python src/generate_golden_dataset.py --input data/obdiidata/ --output data/gold
 python src/evaluate_pal.py --golden data/golden/golden_dataset.csv --results data/results/pal_answers.csv
 ```
 
+### src/generate_rag_golden_dataset.py
+- **Purpose:** Builds a golden dataset of diagnostic-code description prompts for RAG testing.
+- **Features:**
+  - Parses `knowledge/diagnostics/fault_codes_database.md`
+  - Generates varied question phrasings for DTC lookup tests
+  - Writes both CSV and plain-text answer key files
+
+**Usage:**
+```sh
+python src/generate_rag_golden_dataset.py --target-count 100 --codes-to-use 20
+```
+
+### src/evaluate_rag.py
+- **Purpose:** Evaluates RAG answers against the diagnostic-code golden dataset.
+- **Features:**
+  - Runs the RAG pipeline against each code question
+  - Computes exact/contains-style description match metrics
+  - Exports per-prompt results to CSV
+
+**Usage:**
+```sh
+python src/evaluate_rag.py --golden-csv data/golden/rag_golden_dataset.csv --output-csv data/golden/rag_eval_results.csv --limit 10
+```
+
 ### src/evaluate_router.py
 - **Purpose:** Evaluates orchestrator routing accuracy (`pal` vs `rag`) on a labeled prompt set.
 - **Features:**
@@ -168,7 +212,7 @@ python src/evaluate_router.py --router-model granite3.3 --limit 10
 
 ## Data Organization
 - **data/obdiidata/**: Contains raw OBD-II CSV files for analysis.
-- **knowledge/diagnostics/**: Contains RAG knowledge documents (`.md`/`.txt`) for diagnostics Q&A.
+- **knowledge/diagnostics/**: Contains RAG knowledge documents (`.md`/`.txt`) for diagnostics Q&A. Current default source is `knowledge/diagnostics/fault_codes_database.md`.
 - **notebooks/**: (Optional) For exploratory analysis and prototyping.
 
 ## Getting Started
@@ -206,8 +250,9 @@ python src/evaluate_router.py --router-model granite3.3 --limit 10
 4. Run CLI scripts from the `src/` directory using the examples above.
 5. Use:
    - `ask_obd.py` for PAL-over-CSV questions
-   - `ask_diagnostics.py` for RAG diagnostics questions
-  - `ask_agent.py` for automatic routing (orchestrator -> PAL/RAG)
+  - `ask_diagnostics.py` for RAG diagnostics questions (defaults to `knowledge/diagnostics/fault_codes_database.md`)
+  - `ask_agent.py` for automatic routing (orchestrator -> PAL/RAG; supports `--docs-dir` file or directory)
+  - `generate_starter_guide_from_dtc.py` as an optional DTC catalog utility script
   - `generate_golden_dataset.py` and `evaluate_pal.py` for PAL benchmarking
   - `evaluate_router.py` for router accuracy benchmarking
 

@@ -10,6 +10,7 @@ from ollama_orchestrator import OllamaOrchestrator
 
 
 VALID_ROUTES = {"pal", "rag"}
+DEFAULT_EVAL_CSV = "data/obdiidata/drive1.csv"
 
 
 def _normalize_route(value: Any) -> str:
@@ -27,7 +28,7 @@ def evaluate_router(
     golden_csv: Path,
     output_csv: Path,
     router_model: str,
-    default_csv: str | None = None,
+    default_csv: str | None = DEFAULT_EVAL_CSV,
     limit: int | None = None,
 ) -> tuple[float, float, int, int]:
     df = pd.read_csv(golden_csv, engine="python")
@@ -54,6 +55,11 @@ def evaluate_router(
         )
         if not csv_path:
             csv_path = _clean_optional_text(default_csv)
+        if not csv_path:
+            raise ValueError(
+                "Router evaluation requires a CSV for every row. "
+                "Provide --default-csv or include csv_path in the golden CSV."
+            )
 
         record = {
             "id": int(row_dict.get("id")),
@@ -144,8 +150,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--default-csv",
-        default="",
-        help="Fallback CSV path passed to router when csv_path is missing in a row",
+        default=DEFAULT_EVAL_CSV,
+        help="CSV path attached to router evaluation rows when csv_path is missing",
     )
     parser.add_argument(
         "--limit",
