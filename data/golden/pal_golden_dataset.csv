@@ -1,36 +1,111 @@
 id,dataset_file,question,pandas_expression,expected_answer
 1,drive1.csv,How many rows are in drive1.csv?,len(df),2497
 2,drive1.csv,What is the maximum engine rpm in drive1.csv?,df['engine_rpm'].max(),2269.5000
-3,drive1.csv,What is the average engine rpm in drive1.csv?,df['engine_rpm'].mean(),1152.6841
-4,drive1.csv,What is the maximum vehicle speed in drive1.csv?,df['vehicle_speed'].max(),48
-5,drive1.csv,What is the average vehicle speed in drive1.csv?,df['vehicle_speed'].mean(),17.9652
-6,drive1.csv,What percentage of rows have vehicle_speed > 0 in drive1.csv?,(df['vehicle_speed'] > 0).mean() * 100,83.9808
-7,drive1.csv,What is the highest coolant temperature in drive1.csv?,df['coolant_temperature'].max(),91
-8,idle1.csv,How many rows are in idle1.csv?,len(df),1013
-9,idle1.csv,What is the maximum engine rpm in idle1.csv?,df['engine_rpm'].max(),1802.2500
-10,idle1.csv,What is the average engine rpm in idle1.csv?,df['engine_rpm'].mean(),804.3184
-11,idle1.csv,What is the maximum vehicle speed in idle1.csv?,df['vehicle_speed'].max(),0
-12,idle1.csv,What is the average vehicle speed in idle1.csv?,df['vehicle_speed'].mean(),0
-13,idle1.csv,What percentage of rows have vehicle_speed > 0 in idle1.csv?,(df['vehicle_speed'] > 0).mean() * 100,0
-14,idle1.csv,What is the highest coolant temperature in idle1.csv?,df['coolant_temperature'].max(),87
-15,live1.csv,How many rows are in live1.csv?,len(df),3486
-16,live1.csv,What is the maximum engine rpm in live1.csv?,df['engine_rpm'].max(),2334.2500
-17,live1.csv,What is the average engine rpm in live1.csv?,df['engine_rpm'].mean(),1156.3519
-18,live1.csv,What is the maximum vehicle speed in live1.csv?,df['vehicle_speed'].max(),60
-19,live1.csv,What is the average vehicle speed in live1.csv?,df['vehicle_speed'].mean(),20.3201
-20,live1.csv,What percentage of rows have vehicle_speed > 0 in live1.csv?,(df['vehicle_speed'] > 0).mean() * 100,64.9168
-21,live1.csv,What is the highest coolant temperature in live1.csv?,df['coolant_temperature'].max(),95
-22,long1.csv,How many rows are in long1.csv?,len(df),3288
-23,long1.csv,What is the maximum engine rpm in long1.csv?,df['engine_rpm'].max(),2340.5000
-24,long1.csv,What is the average engine rpm in long1.csv?,df['engine_rpm'].mean(),1405.1988
-25,long1.csv,What is the maximum vehicle speed in long1.csv?,df['vehicle_speed'].max(),81
-26,long1.csv,What is the average vehicle speed in long1.csv?,df['vehicle_speed'].mean(),36.6922
-27,long1.csv,What percentage of rows have vehicle_speed > 0 in long1.csv?,(df['vehicle_speed'] > 0).mean() * 100,93.7956
-28,long1.csv,What is the highest coolant temperature in long1.csv?,df['coolant_temperature'].max(),90
-29,ufpe1.csv,How many rows are in ufpe1.csv?,len(df),1541
-30,ufpe1.csv,What is the maximum engine rpm in ufpe1.csv?,df['engine_rpm'].max(),2330.2500
-31,ufpe1.csv,What is the average engine rpm in ufpe1.csv?,df['engine_rpm'].mean(),1361.1325
-32,ufpe1.csv,What is the maximum vehicle speed in ufpe1.csv?,df['vehicle_speed'].max(),54
-33,ufpe1.csv,What is the average vehicle speed in ufpe1.csv?,df['vehicle_speed'].mean(),28.0227
-34,ufpe1.csv,What percentage of rows have vehicle_speed > 0 in ufpe1.csv?,(df['vehicle_speed'] > 0).mean() * 100,97.9234
-35,ufpe1.csv,What is the highest coolant temperature in ufpe1.csv?,df['coolant_temperature'].max(),90
+3,drive1.csv,What is the minimum engine rpm in drive1.csv?,df['engine_rpm'].min(),0
+4,drive1.csv,What is the average engine rpm in drive1.csv?,df['engine_rpm'].mean(),1152.6841
+5,drive1.csv,What is the median engine rpm in drive1.csv?,df['engine_rpm'].median(),1053.7500
+6,drive1.csv,What is the 90th percentile of engine rpm in drive1.csv?,df['engine_rpm'].quantile(0.9),1735.7500
+7,drive1.csv,What is the interquartile range of engine rpm in drive1.csv?,df['engine_rpm'].quantile(0.75) - df['engine_rpm'].quantile(0.25),648.2500
+8,drive1.csv,What percentage of rows have engine_rpm above its own mean in drive1.csv?,(df['engine_rpm'] > df['engine_rpm'].mean()).mean() * 100,43.8126
+9,drive1.csv,How many rows have engine_rpm in the top 10 percent in drive1.csv?,(df['engine_rpm'] >= df['engine_rpm'].quantile(0.9)).sum(),257
+10,drive1.csv,How many rows have engine_rpm in the lowest 10 percent in drive1.csv?,(df['engine_rpm'] <= df['engine_rpm'].quantile(0.1)).sum(),250
+11,drive1.csv,What is the maximum vehicle speed in drive1.csv?,df['vehicle_speed'].max(),48
+12,drive1.csv,What is the minimum vehicle speed in drive1.csv?,df['vehicle_speed'].min(),0
+13,drive1.csv,What is the average vehicle speed in drive1.csv?,df['vehicle_speed'].mean(),17.9652
+14,drive1.csv,What is the median vehicle speed in drive1.csv?,df['vehicle_speed'].median(),18
+15,drive1.csv,What percentage of rows have vehicle_speed > 0 in drive1.csv?,(df['vehicle_speed'] > 0).mean() * 100,83.9808
+16,drive1.csv,How many rows have vehicle_speed above the dataset average in drive1.csv?,(df['vehicle_speed'] > df['vehicle_speed'].mean()).sum(),1265
+17,drive1.csv,What is the speed range (max-min) in drive1.csv?,df['vehicle_speed'].max() - df['vehicle_speed'].min(),48
+18,drive1.csv,What is the average vehicle speed in km/h for drive1.csv?,df['vehicle_speed'].mean() * 1.60934,28.9120
+19,drive1.csv,What is the highest coolant temperature in drive1.csv?,df['coolant_temperature'].max(),91
+20,drive1.csv,What is the average coolant temperature in drive1.csv?,df['coolant_temperature'].mean(),87.0416
+21,drive10.csv,What is the maximum engine rpm in drive10.csv?,df['engine_rpm'].max(),2540.5000
+22,drive10.csv,What is the minimum engine rpm in drive10.csv?,df['engine_rpm'].min(),0
+23,drive10.csv,What is the average engine rpm in drive10.csv?,df['engine_rpm'].mean(),1460.3870
+24,drive10.csv,What is the median engine rpm in drive10.csv?,df['engine_rpm'].median(),1578.7500
+25,drive10.csv,What is the 90th percentile of engine rpm in drive10.csv?,df['engine_rpm'].quantile(0.9),1914
+26,drive10.csv,What is the interquartile range of engine rpm in drive10.csv?,df['engine_rpm'].quantile(0.75) - df['engine_rpm'].quantile(0.25),678.2500
+27,drive10.csv,What percentage of rows have engine_rpm above its own mean in drive10.csv?,(df['engine_rpm'] > df['engine_rpm'].mean()).mean() * 100,58.1915
+28,drive10.csv,How many rows have engine_rpm in the top 10 percent in drive10.csv?,(df['engine_rpm'] >= df['engine_rpm'].quantile(0.9)).sum(),515
+29,drive10.csv,How many rows have engine_rpm in the lowest 10 percent in drive10.csv?,(df['engine_rpm'] <= df['engine_rpm'].quantile(0.1)).sum(),506
+30,drive10.csv,What is the maximum vehicle speed in drive10.csv?,df['vehicle_speed'].max(),69
+31,drive10.csv,What is the minimum vehicle speed in drive10.csv?,df['vehicle_speed'].min(),0
+32,drive10.csv,What is the average vehicle speed in drive10.csv?,df['vehicle_speed'].mean(),31.7101
+33,drive10.csv,What is the median vehicle speed in drive10.csv?,df['vehicle_speed'].median(),37
+34,drive10.csv,What percentage of rows have vehicle_speed > 0 in drive10.csv?,(df['vehicle_speed'] > 0).mean() * 100,84.9030
+35,drive10.csv,How many rows have vehicle_speed above the dataset average in drive10.csv?,(df['vehicle_speed'] > df['vehicle_speed'].mean()).sum(),3096
+36,drive10.csv,What is the speed range (max-min) in drive10.csv?,df['vehicle_speed'].max() - df['vehicle_speed'].min(),69
+37,drive10.csv,What is the average vehicle speed in km/h for drive10.csv?,df['vehicle_speed'].mean() * 1.60934,51.0324
+38,drive10.csv,What is the highest coolant temperature in drive10.csv?,df['coolant_temperature'].max(),90
+39,drive10.csv,What is the average coolant temperature in drive10.csv?,df['coolant_temperature'].mean(),86.1905
+40,drive10.csv,How many rows have coolant_temperature above its 75th percentile in drive10.csv?,(df['coolant_temperature'] > df['coolant_temperature'].quantile(0.75)).sum(),753
+41,drive11.csv,What is the minimum engine rpm in drive11.csv?,df['engine_rpm'].min(),0
+42,drive11.csv,What is the average engine rpm in drive11.csv?,df['engine_rpm'].mean(),1544.7711
+43,drive11.csv,What is the median engine rpm in drive11.csv?,df['engine_rpm'].median(),1608.5000
+44,drive11.csv,What is the 90th percentile of engine rpm in drive11.csv?,df['engine_rpm'].quantile(0.9),2029.5000
+45,drive11.csv,What is the interquartile range of engine rpm in drive11.csv?,df['engine_rpm'].quantile(0.75) - df['engine_rpm'].quantile(0.25),543
+46,drive11.csv,What percentage of rows have engine_rpm above its own mean in drive11.csv?,(df['engine_rpm'] > df['engine_rpm'].mean()).mean() * 100,57.6695
+47,drive11.csv,How many rows have engine_rpm in the top 10 percent in drive11.csv?,(df['engine_rpm'] >= df['engine_rpm'].quantile(0.9)).sum(),306
+48,drive11.csv,How many rows have engine_rpm in the lowest 10 percent in drive11.csv?,(df['engine_rpm'] <= df['engine_rpm'].quantile(0.1)).sum(),307
+49,drive11.csv,What is the maximum vehicle speed in drive11.csv?,df['vehicle_speed'].max(),89
+50,drive11.csv,What is the minimum vehicle speed in drive11.csv?,df['vehicle_speed'].min(),0
+51,drive11.csv,What is the average vehicle speed in drive11.csv?,df['vehicle_speed'].mean(),40.7591
+52,drive11.csv,What is the median vehicle speed in drive11.csv?,df['vehicle_speed'].median(),45
+53,drive11.csv,What percentage of rows have vehicle_speed > 0 in drive11.csv?,(df['vehicle_speed'] > 0).mean() * 100,91.9026
+54,drive11.csv,How many rows have vehicle_speed above the dataset average in drive11.csv?,(df['vehicle_speed'] > df['vehicle_speed'].mean()).sum(),1866
+55,drive11.csv,What is the speed range (max-min) in drive11.csv?,df['vehicle_speed'].max() - df['vehicle_speed'].min(),89
+56,drive11.csv,What is the average vehicle speed in km/h for drive11.csv?,df['vehicle_speed'].mean() * 1.60934,65.5952
+57,drive11.csv,What is the highest coolant temperature in drive11.csv?,df['coolant_temperature'].max(),90
+58,drive11.csv,What is the average coolant temperature in drive11.csv?,df['coolant_temperature'].mean(),86.6606
+59,drive11.csv,How many rows have coolant_temperature above its 75th percentile in drive11.csv?,(df['coolant_temperature'] > df['coolant_temperature'].quantile(0.75)).sum(),731
+60,drive11.csv,What is the average engine rpm when vehicle_speed > 0 in drive11.csv?,"df.loc[df['vehicle_speed'] > 0, 'engine_rpm'].mean()",1612.2941
+61,idle1.csv,What is the average engine rpm in idle1.csv?,df['engine_rpm'].mean(),804.3184
+62,idle1.csv,What is the median engine rpm in idle1.csv?,df['engine_rpm'].median(),775
+63,idle1.csv,What is the 90th percentile of engine rpm in idle1.csv?,df['engine_rpm'].quantile(0.9),925.7500
+64,idle1.csv,What is the interquartile range of engine rpm in idle1.csv?,df['engine_rpm'].quantile(0.75) - df['engine_rpm'].quantile(0.25),178.2500
+65,idle1.csv,What percentage of rows have engine_rpm above its own mean in idle1.csv?,(df['engine_rpm'] > df['engine_rpm'].mean()).mean() * 100,43.9289
+66,idle1.csv,How many rows have engine_rpm in the top 10 percent in idle1.csv?,(df['engine_rpm'] >= df['engine_rpm'].quantile(0.9)).sum(),103
+67,idle1.csv,How many rows have engine_rpm in the lowest 10 percent in idle1.csv?,(df['engine_rpm'] <= df['engine_rpm'].quantile(0.1)).sum(),107
+68,idle1.csv,What is the maximum vehicle speed in idle1.csv?,df['vehicle_speed'].max(),0
+69,idle1.csv,What is the minimum vehicle speed in idle1.csv?,df['vehicle_speed'].min(),0
+70,idle1.csv,What is the average vehicle speed in idle1.csv?,df['vehicle_speed'].mean(),0
+71,idle1.csv,What is the median vehicle speed in idle1.csv?,df['vehicle_speed'].median(),0
+72,idle1.csv,What percentage of rows have vehicle_speed > 0 in idle1.csv?,(df['vehicle_speed'] > 0).mean() * 100,0
+73,idle1.csv,How many rows have vehicle_speed above the dataset average in idle1.csv?,(df['vehicle_speed'] > df['vehicle_speed'].mean()).sum(),0
+74,idle1.csv,What is the speed range (max-min) in idle1.csv?,df['vehicle_speed'].max() - df['vehicle_speed'].min(),0
+75,idle1.csv,What is the average vehicle speed in km/h for idle1.csv?,df['vehicle_speed'].mean() * 1.60934,0
+76,idle1.csv,What is the highest coolant temperature in idle1.csv?,df['coolant_temperature'].max(),87
+77,idle1.csv,What is the average coolant temperature in idle1.csv?,df['coolant_temperature'].mean(),66.3623
+78,idle1.csv,How many rows have coolant_temperature above its 75th percentile in idle1.csv?,(df['coolant_temperature'] > df['coolant_temperature'].quantile(0.75)).sum(),247
+79,idle1.csv,What is the average engine rpm when vehicle_speed > 0 in idle1.csv?,"df.loc[df['vehicle_speed'] > 0, 'engine_rpm'].mean()",0
+80,idle1.csv,What is the average engine rpm when vehicle_speed == 0 in idle1.csv?,"df.loc[df['vehicle_speed'] == 0, 'engine_rpm'].mean()",804.3184
+81,idle10.csv,What is the median engine rpm in idle10.csv?,df['engine_rpm'].median(),846.7500
+82,idle10.csv,What is the 90th percentile of engine rpm in idle10.csv?,df['engine_rpm'].quantile(0.9),875.7500
+83,idle10.csv,What is the interquartile range of engine rpm in idle10.csv?,df['engine_rpm'].quantile(0.75) - df['engine_rpm'].quantile(0.25),18
+84,idle10.csv,What percentage of rows have engine_rpm above its own mean in idle10.csv?,(df['engine_rpm'] > df['engine_rpm'].mean()).mean() * 100,79.9347
+85,idle10.csv,How many rows have engine_rpm in the top 10 percent in idle10.csv?,(df['engine_rpm'] >= df['engine_rpm'].quantile(0.9)).sum(),125
+86,idle10.csv,How many rows have engine_rpm in the lowest 10 percent in idle10.csv?,(df['engine_rpm'] <= df['engine_rpm'].quantile(0.1)).sum(),128
+87,idle10.csv,What is the maximum vehicle speed in idle10.csv?,df['vehicle_speed'].max(),0
+88,idle10.csv,What is the minimum vehicle speed in idle10.csv?,df['vehicle_speed'].min(),0
+89,idle10.csv,What is the average vehicle speed in idle10.csv?,df['vehicle_speed'].mean(),0
+90,idle10.csv,What is the median vehicle speed in idle10.csv?,df['vehicle_speed'].median(),0
+91,idle10.csv,What percentage of rows have vehicle_speed > 0 in idle10.csv?,(df['vehicle_speed'] > 0).mean() * 100,0
+92,idle10.csv,How many rows have vehicle_speed above the dataset average in idle10.csv?,(df['vehicle_speed'] > df['vehicle_speed'].mean()).sum(),0
+93,idle10.csv,What is the speed range (max-min) in idle10.csv?,df['vehicle_speed'].max() - df['vehicle_speed'].min(),0
+94,idle10.csv,What is the average vehicle speed in km/h for idle10.csv?,df['vehicle_speed'].mean() * 1.60934,0
+95,idle10.csv,What is the highest coolant temperature in idle10.csv?,df['coolant_temperature'].max(),90
+96,idle10.csv,What is the average coolant temperature in idle10.csv?,df['coolant_temperature'].mean(),87.8352
+97,idle10.csv,How many rows have coolant_temperature above its 75th percentile in idle10.csv?,(df['coolant_temperature'] > df['coolant_temperature'].quantile(0.75)).sum(),130
+98,idle10.csv,What is the average engine rpm when vehicle_speed > 0 in idle10.csv?,"df.loc[df['vehicle_speed'] > 0, 'engine_rpm'].mean()",0
+99,idle10.csv,What is the average engine rpm when vehicle_speed == 0 in idle10.csv?,"df.loc[df['vehicle_speed'] == 0, 'engine_rpm'].mean()",828.0748
+100,idle10.csv,How many rows have both engine_rpm > 1500 and vehicle_speed > 0 in idle10.csv?,((df['engine_rpm'] > 1500) & (df['vehicle_speed'] > 0)).sum(),0
+101,idle11.csv,What is the 90th percentile of engine rpm in idle11.csv?,df['engine_rpm'].quantile(0.9),865.5000
+102,idle11.csv,What is the interquartile range of engine rpm in idle11.csv?,df['engine_rpm'].quantile(0.75) - df['engine_rpm'].quantile(0.25),197.7500
+103,idle11.csv,What percentage of rows have engine_rpm above its own mean in idle11.csv?,(df['engine_rpm'] > df['engine_rpm'].mean()).mean() * 100,48
+104,idle11.csv,How many rows have engine_rpm in the top 10 percent in idle11.csv?,(df['engine_rpm'] >= df['engine_rpm'].quantile(0.9)).sum(),89
+105,idle11.csv,How many rows have engine_rpm in the lowest 10 percent in idle11.csv?,(df['engine_rpm'] <= df['engine_rpm'].quantile(0.1)).sum(),94
+106,idle11.csv,What is the maximum vehicle speed in idle11.csv?,df['vehicle_speed'].max(),0
+107,idle11.csv,What is the minimum vehicle speed in idle11.csv?,df['vehicle_speed'].min(),0
+108,idle11.csv,What is the average vehicle speed in idle11.csv?,df['vehicle_speed'].mean(),0
+109,idle11.csv,What is the median vehicle speed in idle11.csv?,df['vehicle_speed'].median(),0
+110,idle11.csv,What percentage of rows have vehicle_speed > 0 in idle11.csv?,(df['vehicle_speed'] > 0).mean() * 100,0

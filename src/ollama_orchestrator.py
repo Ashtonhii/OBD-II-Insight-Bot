@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -66,72 +65,6 @@ class OllamaOrchestrator:
         return data["message"]["content"]
 
     @staticmethod
-    def _looks_like_data_question(question: str) -> bool:
-        q = str(question).strip().lower()
-
-        data_terms = (
-            "csv",
-            "dataset",
-            "data",
-            "log",
-            "rpm",
-            "speed",
-            "maf",
-            "throttle",
-            "fuel trim",
-            "coolant",
-        )
-        analysis_verbs = (
-            "average",
-            "mean",
-            "max",
-            "maximum",
-            "min",
-            "minimum",
-            "median",
-            "sum",
-            "count",
-            "trend",
-            "compare",
-            "difference",
-            "calculate",
-            "compute",
-            "filter",
-            "group",
-        )
-
-        has_data_term = any(term in q for term in data_terms)
-        has_analysis_verb = any(term in q for term in analysis_verbs)
-
-        # Also catch symbol-heavy numeric requests like "max rpm" or "avg speed"
-        short_metric_pattern = re.compile(r"\b(avg|mean|max|min|median)\b.*\b(rpm|speed|maf|throttle|coolant)\b")
-        return (has_data_term and has_analysis_verb) or bool(short_metric_pattern.search(q))
-
-    @staticmethod
-    def _looks_like_data_followup(question: str, memory_context: str) -> bool:
-        q = str(question).strip().lower()
-        memory_text = str(memory_context).strip().lower()
-
-        followup_markers = (
-            "previous",
-            "earlier",
-            "that",
-            "those",
-            "this result",
-            "compare",
-            "based on",
-            "same file",
-        )
-        analysis_markers = ("average", "mean", "max", "min", "compare", "difference")
-
-        has_followup_language = any(term in q for term in followup_markers)
-        has_analysis_language = any(term in q for term in analysis_markers)
-        prior_pal_turn_exists = "route: pal" in memory_text
-        prior_csv_exists = "csv_path:" in memory_text
-
-        return has_followup_language and has_analysis_language and (prior_pal_turn_exists or prior_csv_exists)
-
-    @staticmethod
     def _extract_json(text: str) -> dict[str, str]:
         raw = text.strip()
         if raw.startswith("```"):
@@ -175,20 +108,6 @@ class OllamaOrchestrator:
                 max_turns=self.memory_turns_for_routing,
             )
 
-        # Deterministic guardrails: when CSV exists and user asks data-analysis/follow-up,
-        # route directly to PAL to avoid LLM router drift into general RAG advice.
-        if csv_available and self._looks_like_data_question(question):
-            return RouteDecision(
-                route="pal",
-                rationale="Rule-based override: CSV is available and question requests telemetry/data analysis.",
-            )
-
-        if csv_available and self._looks_like_data_followup(question, memory_context):
-            return RouteDecision(
-                route="pal",
-                rationale="Rule-based override: follow-up references prior data results in this session.",
-            )
-
         system_prompt = (
             "You are a strict routing agent for a multi-agent vehicle assistant. "
             "Choose exactly one route:\n"
@@ -204,8 +123,7 @@ class OllamaOrchestrator:
             "Rules:\n"
             "1) If the question asks to compute, filter, aggregate, trend, or compare values from a dataset/log, choose 'pal'.\n"
             "2) If the question asks for general diagnostic guidance/knowledge independent of provided telemetry, choose 'rag'.\n"
-            "3) If CSV is available and the question compares/extends prior numeric data results, choose 'pal'.\n"
-            "4) If truly unclear and no explicit data-analysis intent is present, choose 'rag'."
+            "3) If truly unclear and no explicit data-analysis intent is present, choose 'rag'."
         )
 
         content = self._chat(

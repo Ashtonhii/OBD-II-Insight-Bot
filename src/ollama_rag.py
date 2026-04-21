@@ -292,13 +292,51 @@ class OllamaDiagnosticsRAG:
             {"role": "user", "content": user_prompt},
         ]
 
-    def ask(self, question: str, top_k: int = 4, conversation_context: str = "") -> RAGResult:
+    @staticmethod
+    def _extract_answer_only_text(question: str, contexts: list[RetrievalChunk]) -> str:
+        requested_codes = OllamaDiagnosticsRAG._extract_question_codes(question)
+
+        # If the question includes a DTC code, return the mapped description.
+        if requested_codes:
+            for chunk in contexts:
+                match = re.search(r"^Description:\s*(.+)$", chunk.text, flags=re.IGNORECASE | re.MULTILINE)
+                if match:
+                    return match.group(1).strip()
+
+        # Otherwise treat question as description-like and return the code.
+        for chunk in contexts:
+            code_match = re.search(r"^Code:\s*([PCBU][0-9A-F]{4})", chunk.text, flags=re.IGNORECASE | re.MULTILINE)
+            if code_match:
+                return code_match.group(1).upper().strip()
+
+        for chunk in contexts:
+            match = re.search(r"^Description:\s*(.+)$", chunk.text, flags=re.IGNORECASE | re.MULTILINE)
+            if match:
+                return match.group(1).strip()
+
+        if contexts:
+            first_chunk = contexts[0].text.strip()
+            if first_chunk:
+                return first_chunk
+
+        return ""
+
+    def ask(
+        self,
+        question: str,
+        top_k: int = 4,
+        conversation_context: str = "",
+        answer_only: bool = False,
+    ) -> RAGResult:
         docs = self._discover_docs()
         chunks = self._build_chunks(docs)
         contexts = self._retrieve(question=question, chunks=chunks, top_k=top_k)
 
-        messages = self._build_prompt(question=question, contexts=contexts, conversation_context=conversation_context)
-        answer = self._chat(messages, temperature=0.1).strip()
+        if answer_only:
+            answer = self._extract_answer_only_text(question, contexts).strip()
+        else:
+            messages = self._build_prompt(question=question, contexts=contexts, conversation_context=conversation_context)
+            answer = self._chat(messages, temperature=0.1).strip()
 
         return RAGResult(answer=answer, contexts=contexts)
 
@@ -309,6 +347,12 @@ def ask_vehicle_diagnostics(
     model: str = "granite3.3",
     top_k: int = 4,
     conversation_context: str = "",
+    answer_only: bool = False,
 ) -> RAGResult:
     rag = OllamaDiagnosticsRAG(model=model, docs_dir=docs_dir)
-    return rag.ask(question=question, top_k=top_k, conversation_context=conversation_context)
+    return rag.ask(
+        question=question,
+        top_k=top_k,
+        conversation_context=conversation_context,
+        answer_only=answer_only,
+    )

@@ -12,7 +12,7 @@ def main() -> None:
     parser.add_argument("--question", required=True, help="User question")
     parser.add_argument(
         "--session-id",
-        default="default",
+        required=True,
         help="Conversation session id used for orchestrator memory",
     )
     parser.add_argument(
