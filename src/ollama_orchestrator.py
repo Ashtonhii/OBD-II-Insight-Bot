@@ -17,6 +17,7 @@ Route = Literal["pal", "rag"]
 class RouteDecision:
     route: Route
     rationale: str
+    rewritten_question: str = ""
 
 
 @dataclass
@@ -157,6 +158,58 @@ class OllamaOrchestrator:
 
         return ""
 
+    def _rewrite_if_referential(self, question: str, session_id: str) -> str:
+        """Rewrite a follow-up question into a self-contained one using recent history.
+
+        Only fires when the question contains a pronoun/reference word and the
+        session has at least one prior turn. Returns the original question unchanged
+        if no rewrite is needed or if the LLM fails to produce one.
+        """
+        reference_triggers = {
+            "that", "it", "this", "those", "them", "its", "that value",
+            "the same", "above", "previously", "based on", "now filter",
+            "now what", "how does that", "convert that", "what about",
+        }
+        q_lower = question.lower()
+        if not any(trigger in q_lower for trigger in reference_triggers):
+            return question
+
+        memory_context = self.memory.format_recent_context(
+            session_id=session_id,
+            max_turns=2,
+            max_chars_per_answer=300,
+        )
+        if not memory_context or memory_context == "No prior conversation memory.":
+            return question
+
+        system_prompt = (
+            "You are a question rewriter for a vehicle diagnostics assistant. "
+            "Your only job is to rewrite a follow-up question into a fully self-contained question "
+            "by replacing pronouns and vague references with the specific values or terms from the conversation history. "
+            "Return ONLY the rewritten question as a single sentence. No explanation, no prefix, no punctuation changes beyond what is needed."
+        )
+        user_prompt = (
+            f"Conversation history:\n{memory_context}\n\n"
+            f"Follow-up question: {question}\n\n"
+            "Rewritten question:"
+        )
+
+        try:
+            rewritten = self._chat(
+                [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=0.0,
+            ).strip()
+            # Reject the rewrite if the model returned something clearly wrong
+            if rewritten and len(rewritten) < 300 and "\n" not in rewritten:
+                return rewritten
+        except Exception:
+            pass
+
+        return question
+
     def route_and_run(
         self,
         *,
@@ -168,7 +221,12 @@ class OllamaOrchestrator:
         docs_dir: str | Path = "knowledge/diagnostics/fault_codes_database.md",
         top_k: int = 4,
     ) -> OrchestratorResult:
+        original_question = question
+        if session_id:
+            question = self._rewrite_if_referential(question, session_id)
+
         decision = self.decide_route(question=question, csv_path=csv_path, session_id=session_id)
+        decision.rewritten_question = question if question != original_question else original_question
 
         # Extract conversation context for agents if session exists
         conversation_context = ""

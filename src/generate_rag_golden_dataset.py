@@ -14,16 +14,46 @@ if str(PROJECT_ROOT) not in sys.path:
 
 DEFAULT_SOURCE_DOC = PROJECT_ROOT / "knowledge" / "diagnostics" / "fault_codes_database.md"
 DEFAULT_OUTPUT_CSV = PROJECT_ROOT / "data" / "golden" / "rag_golden_dataset.csv"
-DEFAULT_OUTPUT_TXT = PROJECT_ROOT / "data" / "golden" / "rag_golden_answers.txt"
-DEFAULT_TARGET_COUNT = 100
-DEFAULT_CODES_TO_USE = 50
+DEFAULT_TARGET_COUNT = 120
+DEFAULT_CODES_TO_USE = 60
 
 CODE_PATTERN = re.compile(r"\b([PCBU][0-9A-F]{4})\b", re.IGNORECASE)
 
-QUESTION_MODES = (
-    "code_to_description",
-    "description_to_code",
-)
+# Each mode is (mode_name, question_template, expected_field)
+# question_template is a callable(code, description) -> str
+QUESTION_MODES: list[tuple[str, object, str]] = [
+    # Tier 1: exact code lookup — exercises the exact DTC match retrieval path
+    ("code_to_description",      lambda code, desc: code,                                         "description"),
+    # Tier 2: exact description lookup — exercises TF-IDF path (must find code from prose)
+    ("description_to_code",      lambda code, desc: desc,                                         "code"),
+    # Tier 3: natural-language "what does X mean" — realistic user phrasing, code in question
+    ("nl_what_does_mean",        lambda code, desc: f"What does {code} mean?",                    "description"),
+    # Tier 4: natural-language "what is X" — short-form query, code in question
+    ("nl_what_is",               lambda code, desc: f"What is {code}?",                           "description"),
+    # Tier 5: natural-language "what causes X" — tests whether the description contains the code
+    ("nl_what_causes",           lambda code, desc: f"What causes fault code {code}?",            "description"),
+    # Tier 6: keyword fragment — retriever must identify the correct code from 2-3 meaningful keywords
+    ("keyword_fragment",         lambda code, desc: _keyword_fragment(desc),                       "code"),
+]
+
+
+def _keyword_fragment(text: str) -> str:
+    """Extract a meaningful 2-4 word keyword fragment from the description,
+    skipping generic circuit/sensor/system words that appear in many entries.
+    This produces a partial query that is distinct from the full description
+    but still specific enough to identify the correct DTC code via TF-IDF retrieval.
+    """
+    skip = {
+        "circuit", "control", "system", "malfunction", "range", "performance",
+        "sensor", "input", "output", "open", "low", "high", "bank", "a", "b",
+        "the", "or", "and", "of", "with", "for", "in", "1", "2", "3",
+    }
+    words = text.split()
+    keywords = [w for w in words if w.lower().rstrip("/(,)") not in skip and len(w) > 2]
+    if len(keywords) >= 2:
+        return " ".join(keywords[:3])
+    # Fallback: first 4 words if no meaningful keywords found
+    return " ".join(words[:4]) if len(words) >= 4 else text
 
 
 def _normalize_space(text: str) -> str:
@@ -47,7 +77,7 @@ def _parse_code_entries(source_doc: Path) -> list[dict[str, str]]:
 
         if line.startswith("#"):
             if current_code:
-                description = _normalize_space(" ".join(part for part in current_desc_parts if part.strip()))
+                description = _normalize_space(" ".join(p for p in current_desc_parts if p.strip()))
                 if description:
                     entries.append({"code": current_code, "description": description})
             if entries:
@@ -57,7 +87,7 @@ def _parse_code_entries(source_doc: Path) -> list[dict[str, str]]:
         match = CODE_PATTERN.match(line)
         if match:
             if current_code:
-                description = _normalize_space(" ".join(part for part in current_desc_parts if part.strip()))
+                description = _normalize_space(" ".join(p for p in current_desc_parts if p.strip()))
                 if description:
                     entries.append({"code": current_code, "description": description})
 
@@ -70,7 +100,7 @@ def _parse_code_entries(source_doc: Path) -> list[dict[str, str]]:
             current_desc_parts.append(line)
 
     if current_code:
-        description = _normalize_space(" ".join(part for part in current_desc_parts if part.strip()))
+        description = _normalize_space(" ".join(p for p in current_desc_parts if p.strip()))
         if description:
             entries.append({"code": current_code, "description": description})
 
@@ -84,7 +114,6 @@ def _evenly_spaced_indices(total: int, count: int) -> list[int]:
     count = max(1, min(count, total))
     if count == total:
         return list(range(total))
-
     if count == 1:
         return [0]
 
@@ -111,17 +140,18 @@ def _build_rows(source_doc: Path, codes_to_use: int, target_count: int) -> list[
     selected_entries = [entries[idx] for idx in selected_indices]
 
     rows: list[dict[str, str]] = []
+
     for entry_index, entry in enumerate(selected_entries):
-        for mode_index, mode in enumerate(QUESTION_MODES):
+        for mode_index, (mode_name, q_fn, expected_field) in enumerate(QUESTION_MODES):
             if len(rows) >= target_count:
                 return rows
 
-            if mode == "code_to_description":
-                question = entry["code"]
-                expected_answer = entry["description"]
-            else:
-                question = entry["description"]
-                expected_answer = entry["code"]
+            question = q_fn(entry["code"], entry["description"])
+            expected_answer = entry[expected_field]
+
+            # Skip degenerate keyword fragments that are too short to be meaningful
+            if mode_name == "keyword_fragment" and len(question.split()) < 2:
+                continue
 
             rows.append(
                 {
@@ -130,31 +160,28 @@ def _build_rows(source_doc: Path, codes_to_use: int, target_count: int) -> list[
                     "expected_answer": expected_answer,
                     "docs_path": str(source_doc.relative_to(PROJECT_ROOT)),
                     "template_id": str(mode_index + 1),
-                    "question_mode": mode,
+                    "question_mode": mode_name,
                     "code_index": str(entry_index + 1),
                 }
             )
 
+    # If we still need more rows, cycle through modes again
     if len(rows) < target_count:
         cursor = 0
         while len(rows) < target_count:
             entry = selected_entries[cursor % len(selected_entries)]
-            mode = QUESTION_MODES[cursor % len(QUESTION_MODES)]
-            if mode == "code_to_description":
-                question = entry["code"]
-                expected_answer = entry["description"]
-            else:
-                question = entry["description"]
-                expected_answer = entry["code"]
-
+            mode_index = cursor % len(QUESTION_MODES)
+            mode_name, q_fn, expected_field = QUESTION_MODES[mode_index]
+            question = q_fn(entry["code"], entry["description"])
+            expected_answer = entry[expected_field]
             rows.append(
                 {
                     "dtc_code": entry["code"],
                     "question": question,
                     "expected_answer": expected_answer,
                     "docs_path": str(source_doc.relative_to(PROJECT_ROOT)),
-                    "template_id": str((cursor % len(QUESTION_MODES)) + 1),
-                    "question_mode": mode,
+                    "template_id": str(mode_index + 1),
+                    "question_mode": mode_name,
                     "code_index": str((cursor % len(selected_entries)) + 1),
                 }
             )
@@ -167,10 +194,9 @@ def generate_rag_golden_dataset(
     *,
     source_doc: Path = DEFAULT_SOURCE_DOC,
     output_csv: Path = DEFAULT_OUTPUT_CSV,
-    output_txt: Path = DEFAULT_OUTPUT_TXT,
     target_count: int = DEFAULT_TARGET_COUNT,
     codes_to_use: int = DEFAULT_CODES_TO_USE,
-) -> tuple[Path, Path, int]:
+) -> tuple[Path, int]:
     rows = _build_rows(source_doc, codes_to_use=codes_to_use, target_count=target_count)
 
     output_csv.parent.mkdir(parents=True, exist_ok=True)
@@ -190,36 +216,26 @@ def generate_rag_golden_dataset(
         for idx, row in enumerate(rows, start=1):
             writer.writerow({"id": idx, **row})
 
-    lines: list[str] = []
-    for idx, row in enumerate(rows, start=1):
-        lines.append(f"Q{idx}: [{row['dtc_code']}] {row['question']}")
-        lines.append(f"A{idx}: {row['expected_answer']}")
-        lines.append("")
-    output_txt.write_text("\n".join(lines), encoding="utf-8")
-
-    return output_csv, output_txt, len(rows)
+    return output_csv, len(rows)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate a golden dataset for evaluating the RAG pipeline.")
-    parser.add_argument("--source-doc", default=str(DEFAULT_SOURCE_DOC), help="Diagnostics knowledge file to parse")
-    parser.add_argument("--output-csv", default=str(DEFAULT_OUTPUT_CSV), help="Path to write the golden CSV")
-    parser.add_argument("--output-txt", default=str(DEFAULT_OUTPUT_TXT), help="Path to write the answer key text file")
-    parser.add_argument("--target-count", type=int, default=DEFAULT_TARGET_COUNT, help="Total number of prompts to generate")
-    parser.add_argument("--codes-to-use", type=int, default=DEFAULT_CODES_TO_USE, help="How many distinct DTC codes to sample")
+    parser.add_argument("--source-doc", default=str(DEFAULT_SOURCE_DOC))
+    parser.add_argument("--output-csv", default=str(DEFAULT_OUTPUT_CSV))
+    parser.add_argument("--target-count", type=int, default=DEFAULT_TARGET_COUNT)
+    parser.add_argument("--codes-to-use", type=int, default=DEFAULT_CODES_TO_USE)
     args = parser.parse_args()
 
-    csv_path, txt_path, count = generate_rag_golden_dataset(
+    csv_path, count = generate_rag_golden_dataset(
         source_doc=Path(args.source_doc),
         output_csv=Path(args.output_csv),
-        output_txt=Path(args.output_txt),
         target_count=max(1, args.target_count),
         codes_to_use=max(1, args.codes_to_use),
     )
 
     print(f"Generated {count} RAG golden QA rows")
     print(f"CSV: {csv_path}")
-    print(f"TXT: {txt_path}")
 
 
 if __name__ == "__main__":

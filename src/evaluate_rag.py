@@ -31,6 +31,17 @@ def _clean_optional_text(value: Any) -> str | None:
 
 
 def _score_answer(expected_answer: str, model_answer: str) -> tuple[str, int, str]:
+    """Four-tier substring matching.
+
+    Tier 1: exact normalised match.
+    Tier 2: expected is a substring of model answer (model gave a full sentence containing the answer).
+    Tier 3: model answer is a substring of expected (model gave a partial answer that is still correct).
+    Tier 4: no match.
+
+    This is more appropriate than strict exact match for LLM outputs because an LLM
+    answering a description-to-code question may respond "The code is P0171" rather
+    than "P0171" alone — tier 2 handles this without penalising a factually correct answer.
+    """
     normalized_expected = _normalize_text(expected_answer)
     normalized_model = _normalize_text(model_answer)
 
@@ -70,18 +81,21 @@ def evaluate_rag(
         missing = ", ".join(sorted(missing_columns))
         raise ValueError(f"Golden RAG dataset is missing required columns: {missing}")
 
+    has_question_mode = "question_mode" in (reader.fieldnames or [])
     results: list[dict[str, Any]] = []
 
     for row in rows:
         question = str(row.get("question", ""))
         expected_answer = str(row.get("expected_answer", ""))
         row_docs_path = _clean_optional_text(row.get("docs_path")) or str(docs_path)
+        question_mode = str(row.get("question_mode", "unknown")).strip() if has_question_mode else "unknown"
 
         record = {
             "id": int(row.get("id", 0)),
             "dtc_code": str(row.get("dtc_code", "")),
             "question": question,
             "expected_answer": expected_answer,
+            "question_mode": question_mode,
             "model_raw_answer": "",
             "normalized_model_answer": "",
             "docs_path_used": row_docs_path,
@@ -109,7 +123,8 @@ def evaluate_rag(
 
         results.append(record)
         print(
-            f"[{record['id']}] exec={record['execution_success']} em={record['exact_match']} code={record['dtc_code']}"
+            f"[{record['id']}] mode={record['question_mode']} exec={record['execution_success']} "
+            f"em={record['exact_match']} code={record['dtc_code']}"
         )
 
     output_csv.parent.mkdir(parents=True, exist_ok=True)
@@ -118,6 +133,7 @@ def evaluate_rag(
         "dtc_code",
         "question",
         "expected_answer",
+        "question_mode",
         "model_raw_answer",
         "normalized_model_answer",
         "docs_path_used",
@@ -138,6 +154,44 @@ def evaluate_rag(
     accuracy_all = (exact_match_count / total) if total else 0.0
     accuracy_success_only = (exact_match_count / execution_success_count) if execution_success_count else 0.0
     return accuracy_all, accuracy_success_only, total, execution_success_count
+
+
+def _print_mode_breakdown(results_csv: Path) -> None:
+    """Print accuracy split by question_mode (code_to_description vs description_to_code).
+
+    code_to_description is typically easier: the exact DTC match path in the retriever
+    guarantees the right chunk is returned when the code appears verbatim in the question.
+
+    description_to_code is harder: the TF-IDF path must match the prose description to the
+    correct chunk, which depends on vocabulary overlap between the question and the chunk text.
+    A lower score here motivates the dense vector retrieval future work.
+    """
+    with results_csv.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        rows = list(reader)
+
+    if not rows:
+        print("\nNo results to break down by question mode.")
+        return
+
+    modes = ["code_to_description", "description_to_code"]
+    print("\n=== Accuracy by Question Mode ===")
+    print(f"{'Mode':<26} {'Total':>6} {'Matched':>8} {'Accuracy':>10}")
+    print("-" * 55)
+
+    for mode in modes:
+        subset = [r for r in rows if r.get("question_mode", "").strip() == mode]
+        if not subset:
+            print(f"{mode:<26} {'n/a':>6}")
+            continue
+        total = len(subset)
+        matched = sum(int(r["exact_match"]) for r in subset)
+        accuracy = matched / total
+        print(f"{mode:<26} {total:>6} {matched:>8} {accuracy:>10.4f}")
+
+    print()
+    print("code_to_description:  retriever uses exact DTC code match path → expected high accuracy.")
+    print("description_to_code:  retriever uses TF-IDF semantic path → vocabulary sensitivity applies.")
 
 
 def main() -> None:
@@ -177,6 +231,8 @@ def main() -> None:
     print(f"Accuracy (all rows): {accuracy_all:.4f}")
     print(f"Accuracy (success-only): {accuracy_success_only:.4f}")
     print(f"Results CSV: {Path(args.output_csv)}")
+
+    _print_mode_breakdown(Path(args.output_csv))
 
 
 if __name__ == "__main__":

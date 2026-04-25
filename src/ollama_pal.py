@@ -24,16 +24,41 @@ class PALResult:
 
 
 def _extract_python_code(text: str) -> str:
-    marker = "```"
-    if marker not in text:
-        return text.strip()
+    """Extract the first Python code block from LLM output.
 
-    chunks = text.split(marker)
-    for chunk in chunks:
-        stripped = chunk.strip()
-        if stripped.startswith("python"):
-            return stripped.removeprefix("python").strip()
-    return chunks[1].strip() if len(chunks) > 1 else text.strip()
+    Handles three cases:
+    1. Fenced ```python ... ``` block — extract contents.
+    2. Fenced ``` ... ``` block without language tag — extract contents.
+    3. No fences — strip leading prose lines until a line that looks like code.
+    """
+    marker = "```"
+    if marker in text:
+        chunks = text.split(marker)
+        for chunk in chunks:
+            stripped = chunk.strip()
+            if stripped.startswith("python"):
+                return stripped.removeprefix("python").strip()
+            if stripped.startswith("result") or stripped.startswith("df[") or "=" in stripped.split("\n")[0]:
+                return stripped
+        return chunks[1].strip() if len(chunks) > 1 else text.strip()
+
+    # No fences — strip prose lines at the top until we reach something code-like
+    code_lines: list[str] = []
+    in_code = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not in_code:
+            looks_like_code = (
+                stripped.startswith("result")
+                or stripped.startswith("df[")
+                or stripped.startswith("df.")
+                or (stripped and "=" in stripped and not stripped.endswith("."))
+            )
+            if looks_like_code:
+                in_code = True
+        if in_code:
+            code_lines.append(line)
+    return "\n".join(code_lines).strip() if code_lines else text.strip()
 
 
 def _is_code_safe(code: str) -> tuple[bool, str]:
@@ -184,11 +209,12 @@ class OllamaPAL:
 
         system_prompt = (
             "You are a strict pandas code generator. "
-            "Write Python code only, no explanations. "
+            "Your output must be Python code and nothing else — no prose, no explanation, no markdown. "
             "Assume a pandas DataFrame named df already exists. "
             "Do not import anything. "
-            "Store the final answer object in variable result. "
-            "Only reference columns that exist in the provided dataset context."
+            "Store the final answer in a variable named result. "
+            "Only reference columns that exist in the provided dataset schema. "
+            "Even if the answer appears to be known from conversation context, you MUST still write code to compute it from df."
         )
 
         conversation_block = ""
@@ -210,11 +236,12 @@ class OllamaPAL:
             "Question:\n"
             f"{question}\n\n"
             "Rules:\n"
-            "1) Use only pandas operations on df.\n"
-            "2) Return concise object in result (scalar, Series, or small DataFrame).\n"
-            "3) If question is ambiguous, choose the most reasonable interpretation.\n"
+            "1) Output Python code only. Do not write any English text.\n"
+            "2) Use only pandas operations on df.\n"
+            "3) Store the final answer in result (scalar, Series, or small DataFrame).\n"
             "4) Never select columns that are not present in df.columns.\n"
-            "5) For follow-up conversion questions (e.g., mph to km/h), compute from relevant existing columns only."
+            "5) Do NOT answer from conversation context — always compute from df.\n"
+            "6) For unit conversions (e.g., mph to km/h), compute from the relevant column in df."
         )
 
         text = self._chat(
@@ -323,14 +350,17 @@ class OllamaPAL:
         try:
             result = self._execute_code(df=df, code=code)
         except PALExecutionError as first_exc:
-            retry_code = self._generate_code(
-                df=df,
-                question=question,
-                conversation_context=conversation_context,
-                execution_error=str(first_exc),
-            )
-            result = self._execute_code(df=df, code=retry_code)
-            code = retry_code
+            try:
+                retry_code = self._generate_code(
+                    df=df,
+                    question=question,
+                    conversation_context=conversation_context,
+                    execution_error=str(first_exc),
+                )
+                result = self._execute_code(df=df, code=retry_code)
+                code = retry_code
+            except PALExecutionError:
+                return self._fallback_answer(question=question, code=code)
 
         if answer_only:
             preview = self._build_result_preview(result)
@@ -342,6 +372,29 @@ class OllamaPAL:
                 conversation_context=conversation_context,
             )
         return PALResult(answer=answer, code=code, result_preview=preview)
+
+    def _fallback_answer(self, question: str, code: str) -> PALResult:
+        """Return a user-facing fallback when code generation fails after one retry."""
+        available_columns = []
+        try:
+            # Extract column names from the last generated code attempt for context
+            import re
+            available_columns = re.findall(r"df\['([^']+)'\]", code)
+        except Exception:
+            pass
+
+        if available_columns:
+            col_hint = f" The question may be referring to a column that doesn't exist in the dataset — available columns used were: {', '.join(dict.fromkeys(available_columns))}."
+        else:
+            col_hint = ""
+
+        answer = (
+            f"I wasn't able to compute an answer for: \"{question}\"."
+            f"{col_hint} "
+            "Could you clarify what you'd like to know? For example, specify the exact metric "
+            "(e.g. 'average engine RPM', 'maximum vehicle speed') and the dataset you're referring to."
+        )
+        return PALResult(answer=answer, code=code, result_preview="")
 
 
 def ask_question_on_csv(

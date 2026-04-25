@@ -1,101 +1,121 @@
 id,dtc_code,question,expected_answer,docs_path,template_id,question_mode,code_index
 1,P0001,P0001,Fuel Volume Regulator Control Circuit/Open,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,1
 2,P0001,Fuel Volume Regulator Control Circuit/Open,P0001,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,1
-3,P0066,P0066,Air Assisted Injector Control Circuit or Circuit Low,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,2
-4,P0066,Air Assisted Injector Control Circuit or Circuit Low,P0066,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,2
-5,P0133,P0133,O2 Sensor Circuit Slow Response (Bank 1 Sensor 1),knowledge\diagnostics\fault_codes_database.md,1,code_to_description,3
-6,P0133,O2 Sensor Circuit Slow Response (Bank 1 Sensor 1),P0133,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,3
-7,P0202,P0202,Injector Circuit Malfunction- Cylinder 2,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,4
-8,P0202,Injector Circuit Malfunction- Cylinder 2,P0202,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,4
-9,P0268,P0268,Cylinder 3 Injector Circuit High,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,5
-10,P0268,Cylinder 3 Injector Circuit High,P0268,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,5
-11,P0344,P0344,Camshaft Position Sensor Circuit Intermittent,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,6
-12,P0344,Camshaft Position Sensor Circuit Intermittent,P0344,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,6
-13,P0438,P0438,Catalyst Temperature Sensor High Input (Bank 2),knowledge\diagnostics\fault_codes_database.md,1,code_to_description,7
-14,P0438,Catalyst Temperature Sensor High Input (Bank 2),P0438,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,7
-15,P0560,P0560,System Voltage Malfunction,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,8
-16,P0560,System Voltage Malfunction,P0560,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,8
-17,P0728,P0728,Engine Speed Input Circuit Intermittent,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,9
-18,P0728,Engine Speed Input Circuit Intermittent,P0728,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,9
-19,P1104,P1104,MAF Ground Malfunction,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,10
-20,P1104,MAF Ground Malfunction,P1104,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,10
-21,P1182,P1182,Fuel Shut Off Solenoid Malfunction,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,11
-22,P1182,Fuel Shut Off Solenoid Malfunction,P1182,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,11
-23,P1250,P1250,PRC Solenoid Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,12
-24,P1250,PRC Solenoid Circuit Malfunction,P1250,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,12
-25,P1340,P1340,Camshaft Position Sensor B Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,13
-26,P1340,Camshaft Position Sensor B Circuit Malfunction,P1340,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,13
-27,P1418,P1418,Split Air #1 Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,14
-28,P1418,Split Air #1 Circuit Malfunction,P1418,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,14
-29,P1486,P1486,EGRA Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,15
-30,P1486,EGRA Circuit Malfunction,P1486,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,15
-31,P1581,P1581,Electronic Throttle Monitor Malfunction,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,16
-32,P1581,Electronic Throttle Monitor Malfunction,P1581,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,16
-33,P1668,P1668,PCM- IDM Communications Error,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,17
-34,P1668,PCM- IDM Communications Error,P1668,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,17
-35,P1751,P1751,Shift Solenoid A Performance,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,18
-36,P1751,Shift Solenoid A Performance,P1751,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,18
-37,P1829,P1829,Transmission Transfer Case Counter Clockwise Shift Relay Coil Open Circuit,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,19
-38,P1829,Transmission Transfer Case Counter Clockwise Shift Relay Coil Open Circuit,P1829,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,19
-39,P1905,P1905,"Pressure Control Solenoid ""C"" Intermittent Short",knowledge\diagnostics\fault_codes_database.md,1,code_to_description,20
-40,P1905,"Pressure Control Solenoid ""C"" Intermittent Short",P1905,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,20
-41,C1163,C1163,Park Brake Switch # 2 Applied Circuit Short to Gnd,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,21
-42,C1163,Park Brake Switch # 2 Applied Circuit Short to Gnd,C1163,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,21
-43,C1229,C1229,Speed Wheel Sensor Rear Center Coherency Fault,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,22
-44,C1229,Speed Wheel Sensor Rear Center Coherency Fault,C1229,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,22
-45,C1404,C1404,Traction Control Valve Rear Circuit Failure,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,23
-46,C1404,Traction Control Valve Rear Circuit Failure,C1404,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,23
-47,C1498,C1498,Traction Control Motor Potentiometer Circuit Short to Ground,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,24
-48,C1498,Traction Control Motor Potentiometer Circuit Short to Ground,C1498,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,24
-49,C1752,C1752,Vehicle Speed Sensor # 1 Output Circuit Short to Gnd,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,25
-50,C1752,Vehicle Speed Sensor # 1 Output Circuit Short to Gnd,C1752,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,25
-51,C1853,C1853,Air Suspension Warning Lamp Circuit Short To Ground,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,26
-52,C1853,Air Suspension Warning Lamp Circuit Short To Ground,C1853,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,26
-53,C1921,C1921,VAPS Solenoid Actuator Output Circuit Failure,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,27
-54,C1921,VAPS Solenoid Actuator Output Circuit Failure,C1921,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,27
-55,B1224,B1224,Fuel Temperature Sensor #1 Circuit Short to Battery,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,28
-56,B1224,Fuel Temperature Sensor #1 Circuit Short to Battery,B1224,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,28
-57,B1290,B1290,Servo Motor Potentiometer Airintake Right Circuit Short To Battery,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,29
-58,B1290,Servo Motor Potentiometer Airintake Right Circuit Short To Battery,B1290,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,29
-59,B1355,B1355,Ignition Run Circuit Failure,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,30
-60,B1355,Ignition Run Circuit Failure,B1355,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,30
-61,B1421,B1421,Passenger Power Window Motor Circuit Short To Ground,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,31
-62,B1421,Passenger Power Window Motor Circuit Short To Ground,B1421,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,31
-63,B1486,B1486,Brake Pedal Input Circuit Ground Short,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,32
-64,B1486,Brake Pedal Input Circuit Ground Short,B1486,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,32
-65,B1552,B1552,Decklid Release Circuit Open,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,33
-66,B1552,Decklid Release Circuit Open,B1552,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,33
-67,B1617,B1617,Wiper Rear Disable Switch Circuit Short To Battery,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,34
-68,B1617,Wiper Rear Disable Switch Circuit Short To Battery,B1617,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,34
-69,B1683,B1683,Mirror Driver/Passenger Switch Circuit Failure,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,35
-70,B1683,Mirror Driver/Passenger Switch Circuit Failure,B1683,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,35
-71,B1748,B1748,Mirror Passenger Horizontal Switch Circuit Short To Ground,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,36
-72,B1748,Mirror Passenger Horizontal Switch Circuit Short To Ground,B1748,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,36
-73,B1813,B1813,Lamp Backup Switch Input Circuit Short To Ground,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,37
-74,B1813,Lamp Backup Switch Input Circuit Short To Ground,B1813,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,37
-75,B1879,B1879,Seatbelt Driver Pretensioner Circuit Short to Ground,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,38
-76,B1879,Seatbelt Driver Pretensioner Circuit Short to Ground,B1879,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,38
-77,B1945,B1945,Air Bag Crash Sensor #2 Ground Circuit Open,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,39
-78,B1945,Air Bag Crash Sensor #2 Ground Circuit Open,B1945,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,39
-79,B2111,B2111,All Door Lock Input Short to Ground,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,40
-80,B2111,All Door Lock Input Short to Ground,B2111,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,40
-81,B2186,B2186,Window Passenger Front Remote Down Switch Short to Battery,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,41
-82,B2186,Window Passenger Front Remote Down Switch Short to Battery,B2186,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,41
-83,B2311,B2311,Mirror Passenger Memory Position Error,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,42
-84,B2311,Mirror Passenger Memory Position Error,B2311,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,42
-85,B2406,B2406,Audio Single-Disc CD Player Internal Fault,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,43
-86,B2406,Audio Single-Disc CD Player Internal Fault,B2406,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,43
-87,B2491,B2491,RF PARK LAMP OUTPUT CIRCUIT Short to Battery,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,44
-88,B2491,RF PARK LAMP OUTPUT CIRCUIT Short to Battery,B2491,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,44
-89,B2570,B2570,Right Lamp Outage Signal Circuit Short to Ground,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,45
-90,B2570,Right Lamp Outage Signal Circuit Short to Ground,B2570,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,45
-91,U1036,U1036,SCP (J1850)Invalid or Missing Data for Wheels,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,46
-92,U1036,SCP (J1850)Invalid or Missing Data for Wheels,U1036,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,46
-93,U1102,U1102,SCP (J1850) Invalid or Missing Data for Primary Id,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,47
-94,U1102,SCP (J1850) Invalid or Missing Data for Primary Id,U1102,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,47
-95,U1168,U1168,SCP (J1850) Invalid or Missing Data for Primary Id,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,48
-96,U1168,SCP (J1850) Invalid or Missing Data for Primary Id,U1168,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,48
-97,U1234,U1234,SCP (J1850) Invalid or Missing Data for Displays,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,49
-98,U1234,SCP (J1850) Invalid or Missing Data for Displays,U1234,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,49
-99,U2500,U2500,(CAN) Lack of Acknowledgement From Engine Management,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,50
-100,U2500,(CAN) Lack of Acknowledgement From Engine Management,U2500,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,50
+3,P0001,What does P0001 mean?,Fuel Volume Regulator Control Circuit/Open,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,1
+4,P0001,What is P0001?,Fuel Volume Regulator Control Circuit/Open,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,1
+5,P0001,What causes fault code P0001?,Fuel Volume Regulator Control Circuit/Open,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,1
+6,P0001,Fuel Volume Regulator,P0001,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,1
+7,P0055,P0055,HO2S Heater Resistance (Bank 1 Sensor 3),knowledge\diagnostics\fault_codes_database.md,1,code_to_description,2
+8,P0055,HO2S Heater Resistance (Bank 1 Sensor 3),P0055,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,2
+9,P0055,What does P0055 mean?,HO2S Heater Resistance (Bank 1 Sensor 3),knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,2
+10,P0055,What is P0055?,HO2S Heater Resistance (Bank 1 Sensor 3),knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,2
+11,P0055,What causes fault code P0055?,HO2S Heater Resistance (Bank 1 Sensor 3),knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,2
+12,P0055,HO2S Heater Resistance,P0055,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,2
+13,P0110,P0110,Intake Air Temperature Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,3
+14,P0110,Intake Air Temperature Circuit Malfunction,P0110,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,3
+15,P0110,What does P0110 mean?,Intake Air Temperature Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,3
+16,P0110,What is P0110?,Intake Air Temperature Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,3
+17,P0110,What causes fault code P0110?,Intake Air Temperature Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,3
+18,P0110,Intake Air Temperature,P0110,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,3
+19,P0167,P0167,O2 Sensor Heater Circuit Malfunction (Bank 2 Sensor 3),knowledge\diagnostics\fault_codes_database.md,1,code_to_description,4
+20,P0167,O2 Sensor Heater Circuit Malfunction (Bank 2 Sensor 3),P0167,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,4
+21,P0167,What does P0167 mean?,O2 Sensor Heater Circuit Malfunction (Bank 2 Sensor 3),knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,4
+22,P0167,What is P0167?,O2 Sensor Heater Circuit Malfunction (Bank 2 Sensor 3),knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,4
+23,P0167,What causes fault code P0167?,O2 Sensor Heater Circuit Malfunction (Bank 2 Sensor 3),knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,4
+24,P0167,Heater (Bank,P0167,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,4
+25,P0223,P0223,Throttle/Petal Position Sensor/Switch B Circuit High Input,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,5
+26,P0223,Throttle/Petal Position Sensor/Switch B Circuit High Input,P0223,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,5
+27,P0223,What does P0223 mean?,Throttle/Petal Position Sensor/Switch B Circuit High Input,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,5
+28,P0223,What is P0223?,Throttle/Petal Position Sensor/Switch B Circuit High Input,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,5
+29,P0223,What causes fault code P0223?,Throttle/Petal Position Sensor/Switch B Circuit High Input,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,5
+30,P0223,Throttle/Petal Position Sensor/Switch,P0223,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,5
+31,P0278,P0278,Cylinder 6 Contribution/Balance Fault,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,6
+32,P0278,Cylinder 6 Contribution/Balance Fault,P0278,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,6
+33,P0278,What does P0278 mean?,Cylinder 6 Contribution/Balance Fault,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,6
+34,P0278,What is P0278?,Cylinder 6 Contribution/Balance Fault,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,6
+35,P0278,What causes fault code P0278?,Cylinder 6 Contribution/Balance Fault,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,6
+36,P0278,Cylinder Contribution/Balance Fault,P0278,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,6
+37,P0343,P0343,Camshaft Position Sensor Circuit High Input,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,7
+38,P0343,Camshaft Position Sensor Circuit High Input,P0343,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,7
+39,P0343,What does P0343 mean?,Camshaft Position Sensor Circuit High Input,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,7
+40,P0343,What is P0343?,Camshaft Position Sensor Circuit High Input,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,7
+41,P0343,What causes fault code P0343?,Camshaft Position Sensor Circuit High Input,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,7
+42,P0343,Camshaft Position,P0343,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,7
+43,P0422,P0422,Main Catalyst Efficiency Below Threshold (Bank 1),knowledge\diagnostics\fault_codes_database.md,1,code_to_description,8
+44,P0422,Main Catalyst Efficiency Below Threshold (Bank 1),P0422,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,8
+45,P0422,What does P0422 mean?,Main Catalyst Efficiency Below Threshold (Bank 1),knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,8
+46,P0422,What is P0422?,Main Catalyst Efficiency Below Threshold (Bank 1),knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,8
+47,P0422,What causes fault code P0422?,Main Catalyst Efficiency Below Threshold (Bank 1),knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,8
+48,P0422,Main Catalyst Efficiency,P0422,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,8
+49,P0485,P0485,Cooling Fan Power/Ground Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,9
+50,P0485,Cooling Fan Power/Ground Circuit Malfunction,P0485,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,9
+51,P0485,What does P0485 mean?,Cooling Fan Power/Ground Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,9
+52,P0485,What is P0485?,Cooling Fan Power/Ground Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,9
+53,P0485,What causes fault code P0485?,Cooling Fan Power/Ground Circuit Malfunction,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,9
+54,P0485,Cooling Fan Power/Ground,P0485,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,9
+55,P0621,P0621,"Generator Lamp ""L"" Control Circuit Malfunction",knowledge\diagnostics\fault_codes_database.md,1,code_to_description,10
+56,P0621,"Generator Lamp ""L"" Control Circuit Malfunction",P0621,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,10
+57,P0621,What does P0621 mean?,"Generator Lamp ""L"" Control Circuit Malfunction",knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,10
+58,P0621,What is P0621?,"Generator Lamp ""L"" Control Circuit Malfunction",knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,10
+59,P0621,What causes fault code P0621?,"Generator Lamp ""L"" Control Circuit Malfunction",knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,10
+60,P0621,"Generator Lamp ""L""",P0621,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,10
+61,P0752,P0752,Shift Solenoid A Stuck On,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,11
+62,P0752,Shift Solenoid A Stuck On,P0752,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,11
+63,P0752,What does P0752 mean?,Shift Solenoid A Stuck On,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,11
+64,P0752,What is P0752?,Shift Solenoid A Stuck On,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,11
+65,P0752,What causes fault code P0752?,Shift Solenoid A Stuck On,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,11
+66,P0752,Shift Solenoid Stuck,P0752,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,11
+67,P1113,P1113,IAT Sensor Open/Short,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,12
+68,P1113,IAT Sensor Open/Short,P1113,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,12
+69,P1113,What does P1113 mean?,IAT Sensor Open/Short,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,12
+70,P1113,What is P1113?,IAT Sensor Open/Short,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,12
+71,P1113,What causes fault code P1113?,IAT Sensor Open/Short,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,12
+72,P1113,IAT Open/Short,P1113,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,12
+73,P1180,P1180,Fuel Delivery System Malfunction- Low,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,13
+74,P1180,Fuel Delivery System Malfunction- Low,P1180,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,13
+75,P1180,What does P1180 mean?,Fuel Delivery System Malfunction- Low,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,13
+76,P1180,What is P1180?,Fuel Delivery System Malfunction- Low,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,13
+77,P1180,What causes fault code P1180?,Fuel Delivery System Malfunction- Low,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,13
+78,P1180,Fuel Delivery Malfunction-,P1180,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,13
+79,P1236,P1236,Fuel Pump Control Out Of Range,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,14
+80,P1236,Fuel Pump Control Out Of Range,P1236,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,14
+81,P1236,What does P1236 mean?,Fuel Pump Control Out Of Range,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,14
+82,P1236,What is P1236?,Fuel Pump Control Out Of Range,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,14
+83,P1236,What causes fault code P1236?,Fuel Pump Control Out Of Range,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,14
+84,P1236,Fuel Pump Out,P1236,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,14
+85,P1292,P1292,Injector High Side Short To GND Or VBATT- Bank 2,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,15
+86,P1292,Injector High Side Short To GND Or VBATT- Bank 2,P1292,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,15
+87,P1292,What does P1292 mean?,Injector High Side Short To GND Or VBATT- Bank 2,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,15
+88,P1292,What is P1292?,Injector High Side Short To GND Or VBATT- Bank 2,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,15
+89,P1292,What causes fault code P1292?,Injector High Side Short To GND Or VBATT- Bank 2,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,15
+90,P1292,Injector Side Short,P1292,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,15
+91,P1380,P1380,Misfire Detected- Rough Road Data Not Available,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,16
+92,P1380,Misfire Detected- Rough Road Data Not Available,P1380,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,16
+93,P1380,What does P1380 mean?,Misfire Detected- Rough Road Data Not Available,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,16
+94,P1380,What is P1380?,Misfire Detected- Rough Road Data Not Available,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,16
+95,P1380,What causes fault code P1380?,Misfire Detected- Rough Road Data Not Available,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,16
+96,P1380,Misfire Detected- Rough,P1380,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,16
+97,P1438,P1438,A/C Evaporator Air Temperature Circuit Range/Performance,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,17
+98,P1438,A/C Evaporator Air Temperature Circuit Range/Performance,P1438,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,17
+99,P1438,What does P1438 mean?,A/C Evaporator Air Temperature Circuit Range/Performance,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,17
+100,P1438,What is P1438?,A/C Evaporator Air Temperature Circuit Range/Performance,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,17
+101,P1438,What causes fault code P1438?,A/C Evaporator Air Temperature Circuit Range/Performance,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,17
+102,P1438,A/C Evaporator Air,P1438,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,17
+103,P1500,P1500,Vehicle Speed Sensor Intermittent,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,18
+104,P1500,Vehicle Speed Sensor Intermittent,P1500,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,18
+105,P1500,What does P1500 mean?,Vehicle Speed Sensor Intermittent,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,18
+106,P1500,What is P1500?,Vehicle Speed Sensor Intermittent,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,18
+107,P1500,What causes fault code P1500?,Vehicle Speed Sensor Intermittent,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,18
+108,P1500,Vehicle Speed Intermittent,P1500,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,18
+109,P1578,P1578,ETC Power Less Than Demand,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,19
+110,P1578,ETC Power Less Than Demand,P1578,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,19
+111,P1578,What does P1578 mean?,ETC Power Less Than Demand,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,19
+112,P1578,What is P1578?,ETC Power Less Than Demand,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,19
+113,P1578,What causes fault code P1578?,ETC Power Less Than Demand,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,19
+114,P1578,ETC Power Less,P1578,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,19
+115,P1642,P1642,Fuel Pump Monitor Circuit High Input,knowledge\diagnostics\fault_codes_database.md,1,code_to_description,20
+116,P1642,Fuel Pump Monitor Circuit High Input,P1642,knowledge\diagnostics\fault_codes_database.md,2,description_to_code,20
+117,P1642,What does P1642 mean?,Fuel Pump Monitor Circuit High Input,knowledge\diagnostics\fault_codes_database.md,3,nl_what_does_mean,20
+118,P1642,What is P1642?,Fuel Pump Monitor Circuit High Input,knowledge\diagnostics\fault_codes_database.md,4,nl_what_is,20
+119,P1642,What causes fault code P1642?,Fuel Pump Monitor Circuit High Input,knowledge\diagnostics\fault_codes_database.md,5,nl_what_causes,20
+120,P1642,Fuel Pump Monitor,P1642,knowledge\diagnostics\fault_codes_database.md,6,keyword_fragment,20

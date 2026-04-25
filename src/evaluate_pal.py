@@ -25,6 +25,57 @@ def _to_float(value: Any) -> float | None:
         return None
 
 
+def _classify_esr_failure(error_note: str) -> str:
+    """Classify an ESR failure (code did not execute) into a named category."""
+    note = error_note.lower()
+    if "keyerror" in note or "column" in note or "not in" in note:
+        return "column_name_error"
+    if "syntaxerror" in note or "invalid syntax" in note or "blocked python construct" in note or "blocked symbol" in note:
+        return "syntax_or_safety_rejection"
+    if "attributeerror" in note or "has no attribute" in note or "blocked dataframe" in note:
+        return "invalid_pandas_method"
+    if "typeerror" in note or "unsupported operand" in note or "cannot" in note:
+        return "type_error"
+    if "did not set" in note or "result" in note:
+        return "missing_result_variable"
+    if "connection" in note or "ollama" in note or "urlopen" in note:
+        return "llm_connection_error"
+    return "other_execution_error"
+
+
+def _classify_em_failure(question: str, note: str) -> str:
+    """Classify an EM failure (code executed but answer was wrong) into a named category."""
+    q = question.lower()
+    n = note.lower()
+
+    if "numeric_parse_failed" in n:
+        return "non_numeric_answer_for_numeric_question"
+
+    # Semantic misinterpretation patterns
+    if "median" in q and "mean" in q:
+        return "mean_median_confusion"
+    if "median" in q:
+        return "computed_mean_instead_of_median"
+    if "mean" in q and "median" not in q:
+        # Could be conditional mean vs unconditional mean
+        if any(kw in q for kw in ["when", "where", "if", "filter", "above", "below", "greater", "less", "speed > 0", "speed == 0"]):
+            return "unconditional_aggregate_for_conditional_query"
+    if "percent" in q or "%" in q or "share" in q or "ratio" in q:
+        return "percentage_calculation_error"
+    if "correlation" in q:
+        return "correlation_computation_error"
+    if "convert" in q or "km/h" in q or "mph" in q:
+        return "unit_conversion_error"
+    if "interquartile" in q or "iqr" in q:
+        return "percentile_computation_error"
+    if "percentile" in q or "quantile" in q:
+        return "percentile_computation_error"
+    if any(kw in q for kw in ["when", "where", "filter", "above", "below", "greater", "less"]):
+        return "unconditional_aggregate_for_conditional_query"
+
+    return "other_semantic_mismatch"
+
+
 def _score_answer(expected_answer: str, model_answer: str, tolerance: float) -> tuple[str, int, str]:
     expected_number = _to_float(expected_answer)
     if expected_number is not None:
@@ -84,6 +135,7 @@ def evaluate_pal(
             "normalized_model_answer": "",
             "execution_success": 0,
             "execution_match": 0,
+            "failure_mode": "",
             "notes": "",
         }
 
@@ -104,13 +156,18 @@ def evaluate_pal(
             record["normalized_model_answer"] = normalized_answer
             record["execution_match"] = execution_match
             record["notes"] = note
+            # Classify EM failure if code ran but answer was wrong
+            if execution_match == 0:
+                record["failure_mode"] = _classify_em_failure(record["question"], note)
         except Exception as exc:
-            record["notes"] = f"execution_error: {str(exc)[:300]}"
+            error_note = f"execution_error: {str(exc)[:300]}"
+            record["notes"] = error_note
+            record["failure_mode"] = _classify_esr_failure(error_note)
 
         results.append(record)
         print(
             f"[{record['dataset_file']}] exec={record['execution_success']} em={record['execution_match']} "
-            f"file={record['dataset_file']}"
+            f"mode={record['failure_mode'] or 'ok'}"
         )
 
     result_df = pd.DataFrame(results)
@@ -124,6 +181,7 @@ def evaluate_pal(
             "normalized_model_answer",
             "execution_success",
             "execution_match",
+            "failure_mode",
             "notes",
         ]
     ]
@@ -137,6 +195,27 @@ def evaluate_pal(
     esr = (execution_success_count / total) if total else 0.0
     em = (exact_match_count / execution_success_count) if execution_success_count else 0.0
     return esr, em, total, execution_success_count
+
+
+def _print_failure_mode_summary(results_csv: Path) -> None:
+    result_df = pd.read_csv(results_csv)
+
+    esr_failures = result_df[result_df["execution_success"] == 0]
+    em_failures = result_df[(result_df["execution_success"] == 1) & (result_df["execution_match"] == 0)]
+
+    print("\n=== ESR Failure Modes (code did not execute) ===")
+    if esr_failures.empty:
+        print("None — all questions executed successfully.")
+    else:
+        esr_counts = esr_failures["failure_mode"].value_counts()
+        print(esr_counts.to_string())
+
+    print("\n=== EM Failure Modes (code executed but answer was wrong) ===")
+    if em_failures.empty:
+        print("None — all executed questions produced correct answers.")
+    else:
+        em_counts = em_failures["failure_mode"].value_counts()
+        print(em_counts.to_string())
 
 
 def main() -> None:
@@ -185,6 +264,8 @@ def main() -> None:
     print(f"ESR: {esr:.4f}")
     print(f"EM: {em:.4f}")
     print(f"Results CSV: {Path(args.output_csv)}")
+
+    _print_failure_mode_summary(Path(args.output_csv))
 
 
 if __name__ == "__main__":

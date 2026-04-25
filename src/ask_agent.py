@@ -54,6 +54,9 @@ def main() -> None:
     )
 
     if args.show_route:
+        if result.decision.rewritten_question != args.question:
+            print("\n=== Rewritten question ===")
+            print(result.decision.rewritten_question)
         print("\n=== Route ===")
         print(result.decision.route)
         print("\n=== Rationale ===")

@@ -10,6 +10,7 @@ from ollama_orchestrator import OllamaOrchestrator
 
 
 VALID_ROUTES = {"pal", "rag"}
+VALID_CATEGORIES = {"unambiguous", "hybrid", "follow_up"}
 DEFAULT_EVAL_CSV = "data/obdiidata/drive1.csv"
 
 
@@ -42,6 +43,7 @@ def evaluate_router(
         raise ValueError(f"Golden router dataset is missing required columns: {missing}")
 
     has_csv_path_column = "csv_path" in df.columns
+    has_category_column = "prompt_category" in df.columns
     orchestrator = OllamaOrchestrator(model=router_model)
 
     rows: list[dict[str, Any]] = []
@@ -50,6 +52,7 @@ def evaluate_router(
         row_dict = row._asdict()
 
         expected_route = _normalize_route(row_dict.get("expected_route"))
+        prompt_category = str(row_dict.get("prompt_category", "unambiguous")).strip().lower() if has_category_column else "unambiguous"
         csv_path = (
             _clean_optional_text(row_dict.get("csv_path")) if has_csv_path_column else None
         )
@@ -65,6 +68,7 @@ def evaluate_router(
             "id": int(row_dict.get("id")),
             "question": str(row_dict.get("question")),
             "expected_route": expected_route,
+            "prompt_category": prompt_category,
             "predicted_route": "",
             "csv_path_used": csv_path or "",
             "is_correct": 0,
@@ -94,7 +98,7 @@ def evaluate_router(
 
         rows.append(record)
         print(
-            f"[{record['id']}] success={record['execution_success']} "
+            f"[{record['id']}] cat={record['prompt_category']} success={record['execution_success']} "
             f"expected={record['expected_route']} predicted={record['predicted_route'] or '-'} "
             f"correct={record['is_correct']}"
         )
@@ -129,6 +133,50 @@ def _print_confusion_table(results_csv: Path) -> None:
     )
     print("\n=== Router Confusion Table (successes only) ===")
     print(confusion.to_string())
+
+    # Asymmetric default analysis
+    # False positive: expected=rag, predicted=pal  → hard failure (PAL without semantic content)
+    # False negative: expected=pal, predicted=rag  → degraded response (RAG answers a data question)
+    fp = int(confusion.loc["rag", "pal"]) if ("rag" in confusion.index and "pal" in confusion.columns) else 0
+    fn = int(confusion.loc["pal", "rag"]) if ("pal" in confusion.index and "rag" in confusion.columns) else 0
+    print("\n=== Asymmetric Default Analysis ===")
+    print(f"False positives (RAG→PAL, hard failure):    {fp}")
+    print(f"False negatives (PAL→RAG, degraded response): {fn}")
+    if fp == 0 and fn == 0:
+        print("No misclassifications — default rule not exercised.")
+    elif fp <= fn:
+        print("Default rule is working as intended: RAG→PAL errors are rarer than PAL→RAG errors.")
+    else:
+        print("WARNING: RAG→PAL errors exceed PAL→RAG errors — default rule is not suppressing hard failures.")
+
+
+def _print_category_breakdown(results_csv: Path) -> None:
+    result_df = pd.read_csv(results_csv)
+    successful = result_df[result_df["execution_success"] == 1].copy()
+
+    if successful.empty:
+        print("\nNo successful routing records to break down by category.")
+        return
+
+    print("\n=== Accuracy by Prompt Category (successes only) ===")
+
+    categories = ["unambiguous", "hybrid", "follow_up"]
+    rows = []
+    for cat in categories:
+        subset = successful[successful["prompt_category"] == cat]
+        if subset.empty:
+            rows.append({"category": cat, "total": 0, "correct": 0, "accuracy": "n/a"})
+            continue
+        total = len(subset)
+        correct = int(subset["is_correct"].sum())
+        accuracy = correct / total
+        rows.append({"category": cat, "total": total, "correct": correct, "accuracy": f"{accuracy:.4f}"})
+
+    breakdown_df = pd.DataFrame(rows)
+    print(breakdown_df.to_string(index=False))
+    print()
+    print("Note: 'hybrid' prompts mix quantitative and qualitative framing.")
+    print("      'follow_up' prompts require session context to resolve routing intent.")
 
 
 def main() -> None:
@@ -177,6 +225,7 @@ def main() -> None:
     print(f"Results CSV: {Path(args.output_csv)}")
 
     _print_confusion_table(Path(args.output_csv))
+    _print_category_breakdown(Path(args.output_csv))
 
 
 if __name__ == "__main__":

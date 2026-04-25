@@ -1,275 +1,335 @@
 # OBD Insight Bot
 
-This repository provides a robust pipeline for analyzing OBD-II vehicle data using Python and the Ollama Granite model. The codebase is organized for reproducible analytics, benchmarking, and CLI interaction. Below is an overview of the main Python files and their roles:
+A multi-agent conversational system for analysing OBD-II vehicle telemetry and answering vehicle diagnostic questions using locally-hosted LLMs via [Ollama](https://ollama.com).
 
-## Multi-Agent Architecture (Current)
+Two specialised agents handle different question types:
+- **PAL Agent** — generates and executes pandas code to answer data-analytical questions over OBD-II CSV logs.
+- **RAG Agent** — retrieves and synthesises answers from a structured diagnostic knowledge base.
 
-- **PAL Agent (`granite-code:8b`)**: Answers questions over OBD CSV data via generated pandas code.
-- **RAG Agent (`granite3.3`)**: Answers diagnostics questions from local markdown/text knowledge, defaulting to `knowledge/diagnostics/fault_codes_database.md`.
-- **Orchestrator Agent (`granite3.3`)**: Routes each question to PAL or RAG based on intent.
-- **Agent Registry (`src/agent_registry.py`)**: Provides a shared interface to run PAL or RAG directly.
+A routing orchestrator decides which agent handles each question, rewrites ambiguous follow-up questions using conversation history, and persists session context in Redis.
 
-Routing is now automatic via the orchestrator CLI (`src/ask_agent.py`).
-The orchestrator now also supports session-based conversational memory.
+---
 
-## Python Files Overview
+## Architecture Overview
 
-### src/data_loader.py
-- **Purpose:** Loads and processes OBD-II CSV files, preserving all cells and handling ragged rows.
-- **Features:**
-  - Custom CSV reader for robust parsing
-  - Exports cleaned and snapshot CSVs
-  - Ensures no data loss during import
-
-**Usage:**
-```sh
-python src/data_loader.py --input data/obdiidata/drive1.csv --output data/processed/drive1_cleaned.csv
 ```
-*(Arguments may vary; see script for details.)*
-
-### src/ollama_pal.py
-- **Purpose:** Implements the PAL (Program-Aided Language) engine for code generation and execution using the Ollama Granite model.
-- **Features:**
-  - Normalizes LLM-generated code
-  - Strips imports and read_csv calls for safety
-  - Enforces existing-column usage in generated code prompts
-  - Retries once with execution-error feedback when generated code fails
-  - Integrates with the data loader
-
-**Usage:**
-This module is imported by other scripts and is not typically run directly.
-
-### src/ask_obd.py
-- **Purpose:** Command-line interface (CLI) for querying OBD-II data using PAL.
-- **Features:**
-  - Accepts user questions and returns answers
-  - Uses the PAL engine and loader
-  - Provides help and usage instructions
-
-**Usage:**
-```sh
-python src/ask_obd.py --help
-python src/ask_obd.py --csv data/obdiidata/drive1.csv --question "What is the average RPM?"
-python src/ask_obd.py --csv data/obdiidata/drive1.csv --question "What is the average RPM?" --model granite --show-code
+User question
+      │
+      ▼
+ ask_agent.py  (CLI entry point)
+      │
+      ▼
+ OllamaOrchestrator  (ollama_orchestrator.py)
+  ├─ Reference rewriting   (resolves pronouns using session memory)
+  ├─ Route classification  (granite3.3 → "pal" or "rag")
+  ├─ ConversationMemory    (Redis-backed session store)
+  │
+  ├─── PAL route ──► OllamaPAL  (ollama_pal.py)
+  │                   ├─ Code generation  (granite-code:8b)
+  │                   ├─ AST safety validation
+  │                   ├─ Sandboxed execution
+  │                   ├─ Retry with error feedback
+  │                   └─ Result summarisation
+  │
+  └─── RAG route ──► OllamaDiagnosticsRAG  (ollama_rag.py)
+                      ├─ DTC-aware document chunking
+                      ├─ Exact DTC code match (Tier 1)
+                      ├─ TF-IDF cosine similarity (Tier 2)
+                      └─ Answer synthesis  (granite3.3)
 ```
 
-### src/ollama_rag.py
-- **Purpose:** Implements a retrieval-augmented generation (RAG) pipeline for vehicle diagnostics Q&A from local documents.
-- **Features:**
-  - Loads `.md` / `.txt` knowledge from a file path or directory
-  - Defaults to `knowledge/diagnostics/fault_codes_database.md`
-  - Uses DTC-aware entry chunking for large fault-code databases
-  - Uses exact-code retrieval first (e.g., `P0299`) before TF-IDF fallback
-  - Uses `granite3.3` to answer from retrieved context only
+---
 
-**Usage:**
-This module is imported by `ask_diagnostics.py` and `agent_registry.py`.
+## Models
 
-### src/ask_diagnostics.py
-- **Purpose:** CLI for diagnostics questions not tied to CSV telemetry data.
-- **Features:**
-  - Retrieves relevant document chunks from a docs file or directory
-  - Defaults to `knowledge/diagnostics/fault_codes_database.md`
-  - Sends grounded context to Ollama `granite3.3`
-  - Optionally prints retrieved context
+| Agent | Model | Purpose |
+|---|---|---|
+| Orchestrator / Router | `granite3.3` | Route classification, reference rewriting |
+| PAL | `granite-code:8b` | Pandas code generation and result summarisation |
+| RAG | `granite3.3` | Answer synthesis from retrieved context |
 
-**Usage:**
-```sh
-python src/ask_diagnostics.py --help
-python src/ask_diagnostics.py --question "What is P0299?"
-python src/ask_diagnostics.py --question "What is P0420?" --docs-dir knowledge/diagnostics/fault_codes_database.md --top-k 5 --show-context
+---
+
+## Project Structure
+
+```
+obd_insight_bot/
+├── src/
+│   ├── ask_agent.py                  # Unified orchestrator CLI
+│   ├── ask_obd.py                    # Standalone PAL CLI
+│   ├── ask_diagnostics.py            # Standalone RAG CLI
+│   ├── ollama_orchestrator.py        # Router, rewriter, dispatcher
+│   ├── ollama_pal.py                 # PAL agent
+│   ├── ollama_rag.py                 # RAG agent
+│   ├── agent_registry.py             # Agent dispatch interface
+│   ├── conversation_memory.py        # Redis session store
+│   ├── data_loader.py                # OBD-II CSV loading and preprocessing
+│   ├── generate_golden_dataset.py    # PAL golden dataset generator
+│   ├── generate_rag_golden_dataset.py# RAG golden dataset generator
+│   ├── evaluate_pal.py               # PAL evaluation (ESR + EM)
+│   ├── evaluate_rag.py               # RAG evaluation (accuracy + mode breakdown)
+│   ├── evaluate_router.py            # Router evaluation (accuracy + confusion matrix)
+│   └── test_pal_security.py          # Adversarial AST safety test suite
+├── data/
+│   ├── obdiidata/                    # Raw OBD-II CSV log files
+│   ├── golden/                       # Golden datasets and evaluation results
+│   └── processed/                    # Cleaned CSV outputs
+├── knowledge/
+│   └── diagnostics/
+│       └── fault_codes_database.md   # DTC knowledge base for RAG
+├── test_pal_memory.ps1               # 2-turn PAL memory smoke test
+├── test_pal_conversation.ps1         # 5-test multi-turn PAL conversation suite
+└── test_rag_conversation.ps1         # 5-test multi-turn RAG/hybrid conversation suite
 ```
 
-### src/agent_registry.py
-- **Purpose:** Shared multi-agent execution layer to call either PAL or RAG agent from one API.
-- **Features:**
-  - `run_pal_agent(...)`
-  - `run_rag_agent(...)`
-  - `run_agent("pal" | "rag", **kwargs)`
-
-**Usage:**
-Imported by future orchestration/router code. Not typically run directly.
-
-### src/ollama_orchestrator.py
-- **Purpose:** LLM router agent that decides whether a user prompt should go to PAL or RAG.
-- **Features:**
-  - Uses Ollama `granite3.3` for routing decisions
-  - Applies deterministic PAL guardrails for CSV-based data-analysis/follow-up questions
-  - Includes recent session memory in routing prompts
-  - Persists each turn in Redis for multi-turn context
-  - Returns route + rationale
-  - Dispatches to PAL for data/CSV computation questions
-  - Dispatches to RAG for diagnostics knowledge questions
-
-**Usage:**
-Imported by `ask_agent.py`.
-
-### src/ask_agent.py
-- **Purpose:** Unified CLI entrypoint for the multi-agent system.
-- **Features:**
-  - Accepts one user question
-  - Uses orchestrator to choose `pal` vs `rag`
-  - Maintains conversational memory by `--session-id`
-  - Supports diagnostics knowledge from a `.md/.txt` file path or directory via `--docs-dir`
-  - Prints route rationale and agent details optionally
-
-**Usage:**
-```sh
-python src/ask_agent.py --help
-python src/ask_agent.py --question "What does P0300 usually indicate?" --session-id tech1 --show-route
-python src/ask_agent.py --question "What is average RPM in this log?" --csv data/obdiidata/drive1.csv --session-id tech1 --show-route --show-details
-python src/ask_agent.py --question "What is P0299?" --docs-dir knowledge/diagnostics/fault_codes_database.md --session-id tech1 --show-route
-```
-
-### src/generate_starter_guide_from_dtc.py
-- **Purpose:** Utility script to scrape/import DTC code descriptions from URL tables or CSV and generate a catalog file.
-- **Features:**
-  - Extracts and deduplicates DTC entries
-  - Supports merge behavior for CSV output
-  - Can export `.csv` or `.md`
-
-**Usage:**
-```sh
-python src/generate_starter_guide_from_dtc.py --source-url "https://www.klavkarr.com/data-trouble-code-obd2.php?dtc=p0000-p0299#dtc" --output knowledge/diagnostics/dtc_catalog.csv
-```
-
-### src/conversation_memory.py
-- **Purpose:** Persists orchestrator session history for conversational routing context.
-- **Features:**
-  - Stores turns in Redis (default: `redis://localhost:6379/0`)
-  - Sanitizes session IDs for safe Redis keys
-  - Uses key prefix `obd:orchestrator:memory:`
-  - Formats recent turns for router prompt context
-
-**Usage:**
-Imported by `ollama_orchestrator.py`.
-
-### src/generate_golden_dataset.py
-- **Purpose:** Builds a golden dataset for benchmarking PAL accuracy.
-- **Features:**
-  - Uses the robust loader to process raw data
-  - Generates reference answers for evaluation
-
-**Usage:**
-```sh
-python src/generate_golden_dataset.py --input data/obdiidata/ --output data/golden/golden_dataset.csv
-```
-
-### src/evaluate_pal.py
-- **Purpose:** Evaluates PAL-generated answers against the golden dataset.
-- **Features:**
-  - Computes ESR/EM metrics for accuracy
-  - Automates benchmarking and reporting
-
-**Usage:**
-```sh
-python src/evaluate_pal.py --golden data/golden/golden_dataset.csv --results data/results/pal_answers.csv
-```
-
-### src/generate_rag_golden_dataset.py
-- **Purpose:** Builds a golden dataset of diagnostic-code description prompts for RAG testing.
-- **Features:**
-  - Parses `knowledge/diagnostics/fault_codes_database.md`
-  - Generates varied question phrasings for DTC lookup tests
-  - Writes both CSV and plain-text answer key files
-
-**Usage:**
-```sh
-python src/generate_rag_golden_dataset.py --target-count 100 --codes-to-use 20
-```
-
-### src/evaluate_rag.py
-- **Purpose:** Evaluates RAG answers against the diagnostic-code golden dataset.
-- **Features:**
-  - Runs the RAG pipeline against each code question
-  - Computes exact/contains-style description match metrics
-  - Exports per-prompt results to CSV
-
-**Usage:**
-```sh
-python src/evaluate_rag.py --golden-csv data/golden/rag_golden_dataset.csv --output-csv data/golden/rag_eval_results.csv --limit 10
-```
-
-### src/evaluate_router.py
-- **Purpose:** Evaluates orchestrator routing accuracy (`pal` vs `rag`) on a labeled prompt set.
-- **Features:**
-  - Runs each prompt through router decision logic
-  - Computes overall routing accuracy
-  - Exports per-prompt predictions and rationale
-  - Prints a confusion table (`expected_route` vs `predicted_route`)
-
-**Usage:**
-```sh
-python src/evaluate_router.py --golden-csv data/golden/router_golden_dataset.csv --output-csv data/golden/router_eval_results.csv
-python src/evaluate_router.py --router-model granite3.3 --limit 10
-```
-
-**Labeled Dataset Format (`data/golden/router_golden_dataset.csv`):**
-- `id`: unique integer
-- `question`: user prompt
-- `expected_route`: `pal` or `rag`
-- `csv_path` (optional): CSV path hint for data-oriented prompts
-
-## Data Organization
-- **data/obdiidata/**: Contains raw OBD-II CSV files for analysis.
-- **knowledge/diagnostics/**: Contains RAG knowledge documents (`.md`/`.txt`) for diagnostics Q&A. Current default source is `knowledge/diagnostics/fault_codes_database.md`.
-- **notebooks/**: (Optional) For exploratory analysis and prototyping.
+---
 
 ## Getting Started
-1. Install dependencies in a virtual environment:
-  ```sh
-  python -m venv venv
-  .\venv\Scripts\activate
-  pip install -r requirements.txt
-  ```
-2. Ensure Ollama is running and models are available:
-  ```sh
-  ollama pull granite-code:8b
-  ollama pull granite3.3
-  ```
-3. Ensure Redis is running for conversation memory:
-  ```sh
-  # default connection used by conversation_memory.py
-  # redis://localhost:6379/0
-  ```
-  Optional: set a custom Redis URL:
-  ```sh
-  set REDIS_URL=redis://localhost:6379/0
-  ```
-  Docker-based Redis (recommended on Windows):
-  ```sh
-  # Start Docker Desktop first, then run:
-  docker run -d --name obd-redis -p 6379:6379 redis:7
 
-  # If container already exists:
-  docker start obd-redis
-
-  # Verify Redis is healthy:
-  docker exec -it obd-redis redis-cli PING
-  ```
-4. Run CLI scripts from the `src/` directory using the examples above.
-5. Use:
-   - `ask_obd.py` for PAL-over-CSV questions
-  - `ask_diagnostics.py` for RAG diagnostics questions (defaults to `knowledge/diagnostics/fault_codes_database.md`)
-  - `ask_agent.py` for automatic routing (orchestrator -> PAL/RAG; supports `--docs-dir` file or directory)
-  - `generate_starter_guide_from_dtc.py` as an optional DTC catalog utility script
-  - `generate_golden_dataset.py` and `evaluate_pal.py` for PAL benchmarking
-  - `evaluate_router.py` for router accuracy benchmarking
-
-## Memory Testing (PAL + RAG)
-
-Use the orchestrator entrypoint (`ask_agent.py`) for memory testing. The `ask_obd.py` script bypasses orchestrator memory.
-
-### Provided Test Scripts
-
-- `test_pal_memory.ps1`: runs 2 PAL-oriented turns in the same session (`memtest-pal`)
-- `test_rag_memory.ps1`: runs 2 RAG-oriented turns in the same session (`memtest-rag`)
-
-Run from repository root:
+### 1. Install dependencies
 
 ```sh
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2. Pull Ollama models
+
+```sh
+ollama pull granite-code:8b
+ollama pull granite3.3
+```
+
+### 3. Start Redis (required for conversation memory)
+
+Using Docker (recommended on Windows):
+
+```sh
+docker run -d --name obd-redis -p 6379:6379 redis:7
+
+# If the container already exists:
+docker start obd-redis
+
+# Verify Redis is healthy:
+docker exec -it obd-redis redis-cli PING
+```
+
+Set a custom Redis URL if needed:
+
+```sh
+set REDIS_URL=redis://localhost:6379/0
+```
+
+---
+
+## Usage
+
+### Unified orchestrator (recommended)
+
+Routes automatically to PAL or RAG based on question intent. Requires `--session-id` for conversation memory.
+
+```sh
+# Data analysis question → PAL
+python src/ask_agent.py --question "What is the average engine RPM?" --csv data/obdiidata/drive1.csv --session-id sess1 --show-route --show-details
+
+# Diagnostic knowledge question → RAG
+python src/ask_agent.py --question "What does P0300 mean?" --session-id sess1 --show-route
+
+# Follow-up using conversation context
+python src/ask_agent.py --question "How does that compare to the maximum?" --csv data/obdiidata/drive1.csv --session-id sess1 --show-route
+```
+
+**Flags:**
+- `--show-route` — prints route decision, rationale, and rewritten question (if rewrite occurred)
+- `--show-details` — prints generated pandas code and result preview (PAL) or retrieved chunks (RAG)
+
+### Standalone PAL (no routing, no memory)
+
+```sh
+python src/ask_obd.py --csv data/obdiidata/drive1.csv --question "What is the average RPM?"
+```
+
+### Standalone RAG (no routing, no memory)
+
+```sh
+python src/ask_diagnostics.py --question "What is P0420?"
+python src/ask_diagnostics.py --question "What is P0420?" --show-context --top-k 5
+```
+
+---
+
+## Source Files
+
+### `src/ollama_orchestrator.py`
+
+Central controller. For every question it:
+
+1. **Rewrites referential follow-ups** — if the question contains a pronoun or vague reference (`"that"`, `"it"`, `"convert that"`, `"based on"`, etc.) and the session has prior history, the LLM rewrites the question into a fully self-contained form using the last 2 turns. Falls back silently to the original if the rewrite fails.
+2. **Classifies the route** — LLM (`granite3.3`) returns `{"route": "pal"|"rag", "rationale": "..."}` at temperature 0.0. Falls back from PAL to RAG if no CSV is provided.
+3. **Dispatches to the agent** — injects the last 3 turns of session context into the agent call.
+4. **Saves the turn** — appends question, route, answer, CSV path, and rationale to Redis (capped at 50 turns).
+
+### `src/ollama_pal.py`
+
+Implements the PAL (Program-Aided Language) pipeline:
+
+1. **Code generation** — `granite-code:8b` receives the DataFrame schema (column names, dtypes, 5-row sample) and is instructed to output Python code only, storing the final answer in `result`. The prompt explicitly forbids answering from conversation context.
+2. **Code extraction** — strips fenced code blocks, prose prefix lines, redundant imports, and `df = pd.read_csv(...)` lines from the raw LLM output.
+3. **AST safety validation** — blocks dangerous constructs before execution:
+   - Node types: `Import`, `ImportFrom`, `Lambda`, `ClassDef`, `FunctionDef`, `Try`, `With`, `Global`, `Nonlocal`, `Delete`, `Raise`, and async variants
+   - Names: `eval`, `exec`, `open`, `compile`, `input`, `breakpoint`, `globals`, `locals`, `vars`, `getattr`, `setattr`, `delattr`, `__import__`
+   - DataFrame methods: `to_csv`, `to_json`, `to_sql`, `to_parquet`, `to_pickle`, `to_hdf`, `to_feather`
+4. **Sandboxed execution** — `exec()` with only 8 safe built-ins (`len`, `min`, `max`, `sum`, `round`, `sorted`, `abs`) and the DataFrame as a shallow copy.
+5. **Retry** — on first failure, re-calls code generation with the exception message as feedback and retries once.
+6. **Fallback** — if the retry also fails, returns a user-facing message asking for clarification rather than raising an exception.
+7. **Result summarisation** — the computed result is narrated into natural language by the LLM.
+
+### `src/ollama_rag.py`
+
+Implements the RAG pipeline:
+
+1. **Chunking** — documents are split into 900-character chunks with 180-character overlap. For DTC fault code databases, a line-based parser extracts each code+description pair as a self-contained chunk.
+2. **Retrieval (Tier 1)** — if the question contains a DTC code pattern (`[PCBU][0-9A-F]{4}`), chunks containing that code are returned directly.
+3. **Retrieval (Tier 2)** — otherwise, TF-IDF cosine similarity is computed between the query and all chunks; top-k by score are returned.
+4. **Answer synthesis** — retrieved chunks are passed to `granite3.3` with a system prompt instructing it to answer only from the provided context.
+
+### `src/conversation_memory.py`
+
+Redis-backed session store. Each session is one Redis key (`obd:orchestrator:memory:<session_id>`), storing a JSON object with a `turns` array. Each turn records: timestamp, question (post-rewrite), route, answer, CSV path, and router rationale. Sessions are capped at 50 turns.
+
+### `src/data_loader.py`
+
+Preprocessing pipeline for OBD-II CSV files:
+- Handles ragged rows (unequal column counts) via a custom `csv.reader` wrapper
+- Sanitises column names to lowercase snake_case and deduplicates
+- Coerces 24 known OBD-II metric columns to float (`engine_rpm`, `vehicle_speed`, `coolant_temperature`, `engine_load`, `catalyst_temperature_bank1_sensor1`, `short_term_fuel_trim_bank_1`, `timing_advance`, `control_module_voltage`, and more)
+- Optionally parses timestamps, drops duplicates, and drops rows with missing required columns
+
+### `src/agent_registry.py`
+
+Thin dispatch layer exposing `run_pal_agent()`, `run_rag_agent()`, and `run_agent("pal"|"rag", **kwargs)`. Wraps `ollama_pal` and `ollama_rag` into a unified `AgentResponse` dataclass.
+
+---
+
+## Evaluation
+
+### PAL Evaluation
+
+**Generate dataset (100 questions, 20 per CSV file):**
+
+```sh
+python src/generate_golden_dataset.py
+```
+
+Generates `data/golden/pal_golden_dataset.csv`. Questions cover 18+ categories including basic aggregates, percentiles, IQR, conditional means, percentage thresholds, unit conversions, and cross-column correlations. Selection is interleaved across all categories to ensure balanced coverage.
+
+**Run evaluation:**
+
+```sh
+python src/evaluate_pal.py
+python src/evaluate_pal.py --limit 20
+python src/evaluate_pal.py --row-id 5
+```
+
+Reports **ESR** (Execution Success Rate — fraction of questions where generated code ran without error) and **EM** (Exact Match Rate — fraction of executed questions where the answer matched the expected value within tolerance 1×10⁻⁴). Automatically prints a failure mode breakdown classifying both execution failures (e.g. `column_name_error`, `syntax_or_safety_rejection`) and semantic mismatches (e.g. `unconditional_aggregate_for_conditional_query`, `unit_conversion_error`).
+
+**Output:** `data/golden/pal_eval_results.csv`
+
+---
+
+### RAG Evaluation
+
+**Generate dataset (120 questions, 20 per mode across 6 modes):**
+
+```sh
+python src/generate_rag_golden_dataset.py
+```
+
+Generates `data/golden/rag_golden_dataset.csv`. Each of 60 evenly-spaced DTC codes is tested in 6 question modes:
+
+| Mode | Question form | Tests |
+|---|---|---|
+| `code_to_description` | `"P0171"` | Exact DTC match retrieval |
+| `description_to_code` | Full description | TF-IDF retrieval |
+| `nl_what_does_mean` | `"What does P0171 mean?"` | Natural language + exact match |
+| `nl_what_is` | `"What is P0171?"` | Natural language + exact match |
+| `nl_what_causes` | `"What causes fault code P0171?"` | Natural language + exact match |
+| `keyword_fragment` | 2–3 keywords from description | TF-IDF with limited vocabulary |
+
+**Run evaluation:**
+
+```sh
+python src/evaluate_rag.py
+python src/evaluate_rag.py --limit 20 --model granite3.3 --top-k 4
+```
+
+Scoring uses four-tier substring matching (exact → expected-in-model → model-in-expected → mismatch) to handle natural LLM verbosity. Prints accuracy split by question mode after each run.
+
+**Output:** `data/golden/rag_eval_results.csv`
+
+---
+
+### Router Evaluation
+
+**Dataset:** `data/golden/router_golden_dataset.csv` — 60 questions across 3 categories:
+- `unambiguous` (30): clearly PAL or clearly RAG
+- `hybrid` (10): numerical observations with diagnostic framing (all RAG)
+- `follow_up` (20): phrased as conversation continuations (mixed)
+
+**Run evaluation:**
+
+```sh
+python src/evaluate_router.py
+python src/evaluate_router.py --limit 10
+```
+
+Reports overall routing accuracy, per-category accuracy, a confusion matrix, and an asymmetric failure analysis. RAG→PAL misclassifications are flagged as hard failures; PAL→RAG as degraded responses. The evaluator checks whether false positives ≤ false negatives and prints a warning if not.
+
+**Output:** `data/golden/router_eval_results.csv`
+
+---
+
+### PAL Security Test Suite
+
+Tests the AST safety validator directly with 43 adversarial inputs, independent of LLM outputs.
+
+```sh
+python src/test_pal_security.py
+```
+
+Covers 6 attack vectors:
+
+| Vector | Cases | Examples |
+|---|---|---|
+| `direct_builtin` | 9 | `eval`, `exec`, `open`, `compile`, `globals`, `locals` |
+| `import_based` | 5 | `import os`, `__import__()`, `subprocess`, `socket` |
+| `getattr_escalation` | 4 | `getattr(df, 'to_csv')`, `setattr`, `delattr` |
+| `dataframe_exfiltration` | 7 | `to_csv`, `to_json`, `to_sql`, `to_parquet`, `to_pickle`, `to_hdf`, `to_feather` |
+| `lambda_obfuscation` | 4 | `lambda` wrapping `eval`, `exec`, `__import__`, `open` |
+| `safe_pandas` | 10 | Legitimate operations that must NOT be blocked |
+
+Exits with code 0 if all cases pass, 1 if any fail.
+
+---
+
+## Conversation Testing
+
+Multi-turn conversation test scripts for verifying that session memory and reference rewriting work end-to-end:
+
+```sh
+# 2-turn smoke test (PAL)
 .\test_pal_memory.ps1
-.\test_rag_memory.ps1
+
+# 5-test multi-turn PAL suite
+# Tests: aggregate→comparison, filter→unit conversion, percentile→threshold count,
+#        correlation→interpretation, three-turn mean→%above→std chain
+.\test_pal_conversation.ps1
+
+# 5-test multi-turn RAG/hybrid suite
+# Tests: code lookup→cause, description→code→explanation, hybrid PAL→RAG,
+#        sequential codes→relationship, three-turn catalyst temp + P0420 chain
+.\test_rag_conversation.ps1
 ```
 
 If PowerShell blocks script execution:
@@ -278,49 +338,35 @@ If PowerShell blocks script execution:
 Set-ExecutionPolicy -Scope Process RemoteSigned
 ```
 
-### Verify Stored Memory in Redis
+---
 
-List memory keys:
+## Session Memory Management
 
+List all active sessions:
 ```sh
 docker exec -it obd-redis redis-cli KEYS "obd:orchestrator:memory:*"
 ```
 
-Inspect PAL test session:
-
+Inspect a session:
 ```sh
-docker exec -it obd-redis redis-cli GET "obd:orchestrator:memory:memtest-pal"
+docker exec -it obd-redis redis-cli GET "obd:orchestrator:memory:sess1"
+
+# Pretty-print JSON
+$raw = docker exec -i obd-redis redis-cli GET "obd:orchestrator:memory:sess1"
+$raw | .\.venv\Scripts\python.exe -m json.tool
 ```
 
-Inspect RAG test session:
-
+Clear one session:
 ```sh
-docker exec -it obd-redis redis-cli GET "obd:orchestrator:memory:memtest-rag"
+docker exec -it obd-redis redis-cli DEL "obd:orchestrator:memory:sess1"
 ```
 
-Pretty-print JSON payload:
-
-```sh
-$raw = docker exec -i obd-redis redis-cli GET "obd:orchestrator:memory:memtest-pal"
-$raw | .\venv\Scripts\python.exe -m json.tool
-```
-
-### Clear Memory History
-
-Clear one session history:
-
-```sh
-docker exec -it obd-redis redis-cli DEL "obd:orchestrator:memory:memtest-pal"
-docker exec -it obd-redis redis-cli DEL "obd:orchestrator:memory:memtest-rag"
-```
-
-Clear all orchestrator session histories:
-
+Clear all sessions:
 ```sh
 docker exec -it obd-redis redis-cli EVAL "for _,k in ipairs(redis.call('keys', ARGV[1])) do redis.call('del', k) end return 'OK'" 0 "obd:orchestrator:memory:*"
 ```
 
-Expected result: each session key stores a JSON object with a `turns` array that grows after each run.
+---
 
 ## License
 MIT
